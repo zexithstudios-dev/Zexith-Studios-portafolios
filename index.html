@@ -10,11 +10,12 @@
         --blue:#00a2ff;
         --yellow:#ffd700;
         --white:#ffffff;
+        --purple:#a259ff; /* New color for Ideas */
         --gray:#888888;
         --dark:#050000;
         --dark2:#0e0e0e;
         --dark3:#161616;
-        --accent: var(--white); /* Dynamic Accent Color */
+        --accent: var(--white); /* Default to white (Scripter) */
         --transition-fast: 0.2s;
         --transition-normal: 0.3s;
         --transition-slow: 0.5s;
@@ -304,6 +305,16 @@
         z-index: -1;
     }
 
+    .select-title, .profile-tabs, .profiles-container {
+        position: relative;
+        z-index: 3;
+    }
+
+    #selection-screen.fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+    
     .select-title { 
         font-size: clamp(1.5rem, 4vw, 2rem); 
         margin-bottom: 30px;
@@ -415,8 +426,6 @@
         justify-content: center; 
         padding: 20px;
         align-items: center;
-        position: relative;
-        z-index: 3;
     }
 
     .profile-card {
@@ -825,6 +834,108 @@
         font-size: 1rem;
     }
 
+    /* DELETE CONFIRMATION MODAL */
+    #delete-confirm-modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 20001; /* Higher than others */
+        display: none;
+        justify-content: center; align-items: center;
+        backdrop-filter: blur(10px);
+    }
+    
+    #delete-confirm-modal.active { display: flex; }
+
+    .delete-confirm-content {
+        background: linear-gradient(145deg, #220000, #000);
+        border: 2px solid var(--red);
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 0 50px rgba(255, 27, 27, 0.3);
+        transform: scale(0.9);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #delete-confirm-modal.active .delete-confirm-content {
+        transform: scale(1);
+    }
+
+    .delete-confirm-content h2 {
+        color: var(--red);
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 20px var(--red);
+    }
+
+    .delete-confirm-content p {
+        color: #ccc;
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+    }
+
+    .delete-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .delete-btn-confirm {
+        padding: 12px 30px;
+        background: var(--red);
+        color: white;
+        border: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        box-shadow: 0 0 20px rgba(255, 27, 27, 0.4);
+        transition: 0.3s;
+    }
+
+    .delete-btn-confirm:hover {
+        background: #ff4d4d;
+        transform: translateY(-2px);
+    }
+
+    .delete-btn-cancel {
+        padding: 12px 30px;
+        background: transparent;
+        color: #aaa;
+        border: 2px solid #555;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+
+    .delete-btn-cancel:hover {
+        border-color: white;
+        color: white;
+    }
+
+    .owner-badge {
+        background: linear-gradient(45deg, #ffd700, #ffaa00);
+        color: black;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        margin-left: 8px;
+        text-transform: uppercase;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        display: inline-block;
+        vertical-align: middle;
+        letter-spacing: 1px;
+    }
+
     /* ---- PROJECTS LIST ---- */
     .ui-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:50px; }
     
@@ -1070,6 +1181,18 @@
     </div>
 </div>
 
+<!-- DELETE CONFIRMATION MODAL -->
+<div id="delete-confirm-modal">
+    <div class="delete-confirm-content">
+        <h2>Eliminar Idea</h2>
+        <p>¿Estás seguro de que deseas eliminar este concepto permanentemente? Esta acción no se puede deshacer.</p>
+        <div class="delete-actions">
+            <button class="delete-btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
+            <button class="delete-btn-confirm" id="confirm-delete-btn">Eliminar</button>
+        </div>
+    </div>
+</div>
+
 <div id="selection-screen">
     <div class="select-title">Selecciona Perfil</div>
     
@@ -1243,6 +1366,7 @@
     let useFirebase = false;
     let savedIdeas = []; // For Local Mode
     let userDisplayName = "Usuario Anonimo";
+    let ideaToDeleteId = null;
 
     async function initSystem() {
         // Check for saved username first
@@ -1372,15 +1496,24 @@
                 dateStr = new Date(idea.date).toLocaleDateString();
             }
 
-            // Determine Display Name
-            // If it's the owner, show "Tú (Name)" or just "Tú" if prefered, but user asked to use the name
-            // Actually, if it's the owner, let's show the name stored in the doc if available
+            // Determine Display Name and Owner Badge
             const displayName = idea.username || "Usuario Anónimo";
-            const displayLabel = isOwner ? `Tú (${displayName})` : displayName;
+            // Check if name is exactly "William" or "Santana"
+            const isDev = ['William', 'Santana'].includes(displayName);
+            
+            let userLabel = displayName;
+            if (isOwner) {
+                userLabel = `Tú (${displayName})`;
+            }
+
+            // Append badge if dev
+            if(isDev) {
+                 userLabel += ` <span class="owner-badge">OWNER</span>`;
+            }
 
             card.innerHTML = `
                 <div class="idea-header">
-                    <div class="idea-user" style="${isOwner ? 'color:var(--accent);' : ''}">${displayLabel}</div>
+                    <div class="idea-user" style="${isOwner ? 'color:var(--accent);' : ''}">${userLabel}</div>
                     <div style="display:flex; align-items:center;">
                         <div class="idea-likes">♥ ${idea.likes || 0}</div>
                         ${deleteBtn}
@@ -1396,23 +1529,38 @@
             grid.appendChild(card);
         });
 
-        // Add Delete Listeners
+        // Add Delete Listeners (Open Modal)
         document.querySelectorAll('.delete-idea-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
+            btn.addEventListener('click', (e) => {
                 e.stopPropagation(); 
-                const docId = btn.getAttribute('data-id');
-                if(confirm('¿Seguro que quieres eliminar esta idea?')) {
-                    if (useFirebase) {
-                        await deleteIdeaFirebase(docId);
-                    } else {
-                        deleteIdeaLocal(docId);
-                    }
-                }
+                ideaToDeleteId = btn.getAttribute('data-id');
+                // Open Custom Modal
+                document.getElementById('delete-confirm-modal').classList.add('active');
             });
         });
         
         init3DCards();
     }
+
+    // --- DELETE MODAL LOGIC ---
+    
+    // Global function for cancel button
+    window.closeDeleteModal = function() {
+        document.getElementById('delete-confirm-modal').classList.remove('active');
+        ideaToDeleteId = null;
+    }
+
+    // Confirm button listener
+    document.getElementById('confirm-delete-btn').addEventListener('click', async () => {
+        if (ideaToDeleteId) {
+            if (useFirebase) {
+                await deleteIdeaFirebase(ideaToDeleteId);
+            } else {
+                deleteIdeaLocal(ideaToDeleteId);
+            }
+            closeDeleteModal();
+        }
+    });
 
     // --- DELETE FUNCTIONS ---
     async function deleteIdeaFirebase(docId) {
