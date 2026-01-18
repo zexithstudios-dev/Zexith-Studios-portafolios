@@ -305,6 +305,16 @@
         z-index: -1;
     }
 
+    .select-title, .profile-tabs, .profiles-container {
+        position: relative;
+        z-index: 3;
+    }
+
+    #selection-screen.fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+    
     .select-title { 
         font-size: clamp(1.5rem, 4vw, 2rem); 
         margin-bottom: 30px;
@@ -1516,14 +1526,21 @@
         const grid = document.getElementById('ideas-grid');
         grid.innerHTML = '';
         
+        // Check current user admin status
+        const isAdmin = ['William', 'Santana'].includes(userDisplayName);
+
         ideas.forEach(idea => {
             const card = document.createElement('div');
             card.className = 'idea-card card-3d';
             
-            // Check ownership
-            const isOwner = currentUser && idea.userId === currentUser.uid;
-            const deleteBtn = isOwner ? 
-                `<button class="delete-idea-btn" data-id="${idea.id}" title="Eliminar mi idea">🗑</button>` : '';
+            // Check ownership OR if admin
+            const isPostAuthor = currentUser && idea.userId === currentUser.uid;
+            
+            // Allow delete if post author OR admin
+            const canDelete = isPostAuthor || isAdmin;
+            
+            const deleteBtn = canDelete ? 
+                `<button class="delete-idea-btn" data-id="${idea.id}" title="Eliminar idea">🗑</button>` : '';
             
             // Format Timestamp
             let dateStr = "Reciente";
@@ -1533,13 +1550,13 @@
                 dateStr = new Date(idea.date).toLocaleDateString();
             }
 
-            // Determine Display Name and Owner Badge
+            // Determine Display Name and Owner Badge for the POST AUTHOR
             const displayName = idea.username || "Usuario Anónimo";
             // Check if name is exactly "William" or "Santana"
             const isDev = ['William', 'Santana'].includes(displayName);
             
             let userLabel = displayName;
-            if (isOwner) {
+            if (isPostAuthor) {
                 userLabel = `Tú (${displayName})`;
             }
 
@@ -1550,7 +1567,7 @@
 
             card.innerHTML = `
                 <div class="idea-header">
-                    <div class="idea-user" style="${isOwner ? 'color:var(--accent);' : ''}">${userLabel}</div>
+                    <div class="idea-user" style="${isPostAuthor ? 'color:var(--accent);' : ''}">${userLabel}</div>
                     <div style="display:flex; align-items:center;">
                         <div class="idea-likes">♥ ${idea.likes || 0}</div>
                         ${deleteBtn}
