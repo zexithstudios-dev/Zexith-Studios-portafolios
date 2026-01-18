@@ -1376,6 +1376,22 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // --- CONFIGURACIÓN DE FIREBASE (PARA QUE FUNCIONE GLOBALMENTE FUERA DEL EDITOR) ---
+    // 1. Ve a console.firebase.google.com y crea un proyecto gratis.
+    // 2. Registra una app web y copia la configuración aquí.
+    // 3. Habilita "Firestore Database" y "Authentication" (Anónimo) en la consola de Firebase.
+    const USER_FIREBASE_CONFIG = null; 
+    /* Ejemplo:
+    const USER_FIREBASE_CONFIG = {
+        apiKey: "AIzaSy...",
+        authDomain: "...",
+        projectId: "...",
+        storageBucket: "...",
+        messagingSenderId: "...",
+        appId: "..."
+    };
+    */
+
     // --- FIREBASE / LOCAL MODE SETUP ---
     let db, auth, currentUser, appId;
     let useFirebase = false;
@@ -1388,21 +1404,32 @@
         checkUsername();
 
         try {
-            // Check if Firebase config exists (Only in Preview)
+            let config = null;
+
+            // 1. Try Environment Config (Preview Mode)
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                const firebaseConfig = JSON.parse(__firebase_config);
-                const app = initializeApp(firebaseConfig);
+                config = JSON.parse(__firebase_config);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            } 
+            // 2. Try User Config (GitHub/Production Mode)
+            else if (typeof USER_FIREBASE_CONFIG !== 'undefined' && USER_FIREBASE_CONFIG) {
+                config = USER_FIREBASE_CONFIG;
+                appId = 'zexith-public-board'; // Fixed ID for custom deployment
+            }
+
+            if (config) {
+                const app = initializeApp(config);
                 auth = getAuth(app);
                 db = getFirestore(app);
-                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 useFirebase = true;
                 
                 await initFirebaseAuth();
             } else {
-                throw new Error("Firebase config missing");
+                throw new Error("No Firebase config found");
             }
+
         } catch (e) {
-            console.log("Modo Local Activado (GitHub/Offline)");
+            console.log("Modo Local Activado (GitHub/Offline):", e);
             useFirebase = false;
             initLocalMode();
         }
@@ -1457,6 +1484,14 @@
             localStorage.setItem('zexith_username', userDisplayName);
             updateUserDisplay(); // Update UI
             document.getElementById('username-modal').classList.remove('active');
+            
+            // Re-render ideas to update delete buttons based on new identity
+            if(useFirebase) {
+                // Since user might have changed permission level, reload is safest to ensure correct view
+                location.reload(); 
+            } else {
+                 renderIdeas(savedIdeas);
+            }
         }
     });
 
@@ -1496,11 +1531,19 @@
         }
     }
 
+    function getIdeasCollection() {
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+             return collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+        } else {
+             return collection(db, 'ideas');
+        }
+    }
+
     // --- FIREBASE LOGIC ---
     function subscribeToIdeas() {
         if (!useFirebase) return;
         
-        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+        const colRef = getIdeasCollection();
         
         onSnapshot(colRef, (snapshot) => {
             const ideas = [];
@@ -1530,6 +1573,9 @@
         const isAdmin = ['William', 'Santana'].includes(userDisplayName);
 
         ideas.forEach(idea => {
+            // Filter out old legacy comments without username
+            if (!idea.username) return; 
+
             const card = document.createElement('div');
             card.className = 'idea-card card-3d';
             
@@ -1619,7 +1665,8 @@
     // --- DELETE FUNCTIONS ---
     async function deleteIdeaFirebase(docId) {
         try {
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'ideas', docId);
+            const colRef = getIdeasCollection();
+            const docRef = doc(db, colRef.path, docId);
             await deleteDoc(docRef);
         } catch (e) {
             console.error("Error deleting doc: ", e);
@@ -1644,7 +1691,7 @@
             
             if (useFirebase) {
                 try {
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+                    const colRef = getIdeasCollection();
                     await addDoc(colRef, {
                         title: title,
                         desc: desc,
