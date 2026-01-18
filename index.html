@@ -10,12 +10,11 @@
         --blue:#00a2ff;
         --yellow:#ffd700;
         --white:#ffffff;
-        --purple:#a259ff; /* New color for Ideas */
         --gray:#888888;
         --dark:#050000;
         --dark2:#0e0e0e;
         --dark3:#161616;
-        --accent: var(--white); /* Default to white (Scripter) */
+        --accent: var(--white); /* Dynamic Accent Color */
         --transition-fast: 0.2s;
         --transition-normal: 0.3s;
         --transition-slow: 0.5s;
@@ -305,16 +304,6 @@
         z-index: -1;
     }
 
-    .select-title, .profile-tabs, .profiles-container {
-        position: relative;
-        z-index: 3;
-    }
-
-    #selection-screen.fade-out {
-        opacity: 0;
-        pointer-events: none;
-    }
-    
     .select-title { 
         font-size: clamp(1.5rem, 4vw, 2rem); 
         margin-bottom: 30px;
@@ -426,6 +415,8 @@
         justify-content: center; 
         padding: 20px;
         align-items: center;
+        position: relative;
+        z-index: 3;
     }
 
     .profile-card {
@@ -613,7 +604,7 @@
     .filter-btn.active { background: rgba(255, 27, 27, 0.15); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(255, 27, 27, 0.2); }
     body.theme-scripter .filter-btn.active { background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
 
-    /* IDEAS FORM & INTERFACE */
+    /* IDEAS FORM & INTERFACE (Dynamic Color) */
     #ideas-interface {
         max-width: 1000px;
         margin: 0 auto;
@@ -625,14 +616,14 @@
     .ideas-form-card {
         background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.9));
         backdrop-filter: blur(10px);
-        border: 2px solid var(--purple);
+        border: 2px solid var(--accent); /* CHANGED: var(--purple) -> var(--accent) */
         border-radius: 20px;
         padding: 30px;
-        box-shadow: 0 0 30px rgba(162, 89, 255, 0.15);
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
     }
 
     .ideas-form-card h3 {
-        color: var(--purple);
+        color: var(--accent); /* CHANGED */
         font-size: 1.5rem;
         margin-bottom: 20px;
         text-transform: uppercase;
@@ -654,10 +645,10 @@
     }
 
     .idea-input:focus {
-        border-color: var(--purple);
+        border-color: var(--accent); /* CHANGED */
         outline: none;
-        background: rgba(162, 89, 255, 0.05);
-        box-shadow: 0 0 15px rgba(162, 89, 255, 0.2);
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 15px var(--accent); /* CHANGED */
     }
 
     textarea.idea-input {
@@ -668,10 +659,10 @@
     .submit-idea-btn {
         width: 100%;
         padding: 15px;
-        background: var(--purple);
+        background: var(--accent); /* CHANGED */
         border: none;
         border-radius: 12px;
-        color: white;
+        color: #000; /* Contrast text for bright backgrounds */
         font-weight: 700;
         text-transform: uppercase;
         cursor: pointer;
@@ -680,8 +671,9 @@
     }
 
     .submit-idea-btn:hover {
-        background: #b370ff;
-        box-shadow: 0 0 20px var(--purple);
+        background: white; 
+        color: black;
+        box-shadow: 0 0 20px var(--accent); /* CHANGED */
         transform: translateY(-2px);
     }
 
@@ -702,16 +694,16 @@
     }
 
     .idea-card:hover {
-        border-color: var(--purple);
+        border-color: var(--accent); /* CHANGED */
         transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(162, 89, 255, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0,0,0,0.3);
     }
 
     .idea-card::before {
         content: '';
         position: absolute;
         top: 0; left: 0; width: 4px; height: 100%;
-        background: var(--purple);
+        background: var(--accent); /* CHANGED */
     }
 
     .idea-header {
@@ -750,7 +742,7 @@
     }
 
     .idea-likes {
-        color: var(--purple);
+        color: var(--accent); /* CHANGED */
         font-size: 0.9rem;
         font-weight: 600;
         display: flex;
@@ -776,6 +768,61 @@
         background: rgba(255, 68, 68, 0.1);
         transform: scale(1.1);
         text-shadow: 0 0 10px #ff4444;
+    }
+
+    /* USERNAME MODAL */
+    #username-modal {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        z-index: 20000;
+        display: none;
+        justify-content: center; align-items: center;
+        backdrop-filter: blur(20px);
+    }
+    
+    #username-modal.active { display: flex; }
+
+    .username-content {
+        background: linear-gradient(145deg, #111, #000);
+        border: 2px solid var(--white);
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 0 50px rgba(255,255,255,0.1);
+    }
+
+    .username-content h2 {
+        color: white;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .username-content input {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 20px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: white;
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    .username-content button {
+        padding: 12px 30px;
+        background: white;
+        color: black;
+        border: none;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 1rem;
     }
 
     /* ---- PROJECTS LIST ---- */
@@ -812,8 +859,8 @@
     .status-badge.completed { background: rgba(0, 255, 100, 0.15); color: #0f0; border: 2px solid rgba(0, 255, 100, 0.5); box-shadow: 0 0 20px rgba(0, 255, 100, 0.3); }
     .status-badge.development { background: rgba(255, 165, 0, 0.15); color: #ffa500; border: 2px solid rgba(255, 165, 0, 0.5); animation: pulseGlow 2s ease-in-out infinite; box-shadow: 0 0 20px rgba(255, 165, 0, 0.3); }
     
-    /* NEW IDEA BADGE STYLE */
-    .status-badge.idea { background: rgba(162, 89, 255, 0.15); color: #a259ff; border: 2px solid rgba(162, 89, 255, 0.5); box-shadow: 0 0 20px rgba(162, 89, 255, 0.3); }
+    /* NEW IDEA BADGE STYLE - NOW USES ACCENT */
+    .status-badge.idea { background: rgba(255, 255, 255, 0.1); color: var(--accent); border: 2px solid var(--accent); box-shadow: 0 0 20px var(--accent); }
 
     @keyframes pulseGlow { 0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255, 165, 0, 0.3); } 50% { opacity: 0.7; box-shadow: 0 0 30px rgba(255, 165, 0, 0.6); } }
 
@@ -1013,6 +1060,16 @@
 
 <div class="custom-cursor"></div>
 
+<!-- USERNAME MODAL -->
+<div id="username-modal">
+    <div class="username-content">
+        <h2>Bienvenido</h2>
+        <p style="color:#aaa; margin-bottom:20px;">¿Cómo te gustaría ser llamado?</p>
+        <input type="text" id="username-input" placeholder="Tu nombre..." maxlength="15">
+        <button id="save-username-btn">Continuar</button>
+    </div>
+</div>
+
 <div id="selection-screen">
     <div class="select-title">Selecciona Perfil</div>
     
@@ -1185,8 +1242,12 @@
     let db, auth, currentUser, appId;
     let useFirebase = false;
     let savedIdeas = []; // For Local Mode
+    let userDisplayName = "Usuario Anonimo";
 
     async function initSystem() {
+        // Check for saved username first
+        checkUsername();
+
         try {
             // Check if Firebase config exists (Only in Preview)
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
@@ -1207,6 +1268,26 @@
             initLocalMode();
         }
     }
+
+    function checkUsername() {
+        const storedName = localStorage.getItem('zexith_username');
+        if (storedName) {
+            userDisplayName = storedName;
+        } else {
+            // Show modal
+            document.getElementById('username-modal').classList.add('active');
+        }
+    }
+
+    document.getElementById('save-username-btn').addEventListener('click', () => {
+        const input = document.getElementById('username-input');
+        const name = input.value.trim();
+        if(name) {
+            userDisplayName = name;
+            localStorage.setItem('zexith_username', name);
+            document.getElementById('username-modal').classList.remove('active');
+        }
+    });
 
     async function initFirebaseAuth() {
         try {
@@ -1291,9 +1372,15 @@
                 dateStr = new Date(idea.date).toLocaleDateString();
             }
 
+            // Determine Display Name
+            // If it's the owner, show "Tú (Name)" or just "Tú" if prefered, but user asked to use the name
+            // Actually, if it's the owner, let's show the name stored in the doc if available
+            const displayName = idea.username || "Usuario Anónimo";
+            const displayLabel = isOwner ? `Tú (${displayName})` : displayName;
+
             card.innerHTML = `
                 <div class="idea-header">
-                    <div class="idea-user" style="${isOwner ? 'color:var(--purple);' : ''}">${isOwner ? 'Tú' : 'Usuario Anonimo'}</div>
+                    <div class="idea-user" style="${isOwner ? 'color:var(--accent);' : ''}">${displayLabel}</div>
                     <div style="display:flex; align-items:center;">
                         <div class="idea-likes">♥ ${idea.likes || 0}</div>
                         ${deleteBtn}
@@ -1302,7 +1389,7 @@
                 <div class="idea-title">${idea.title}</div>
                 <div class="idea-desc">${idea.desc}</div>
                 <div class="idea-footer">
-                    <div class="tag" style="border-color:var(--purple); color:var(--purple);">Comunidad</div>
+                    <div class="tag" style="border-color:var(--accent); color:var(--accent);">Comunidad</div>
                     <span style="font-size:0.7rem; color:#666; margin-left:auto; align-self:center;">${dateStr}</span>
                 </div>
             `;
@@ -1361,6 +1448,7 @@
                         desc: desc,
                         likes: 0,
                         userId: currentUser.uid,
+                        username: userDisplayName, // Save Username
                         timestamp: serverTimestamp()
                     });
                 } catch (e) {
@@ -1374,6 +1462,7 @@
                     desc: desc,
                     likes: 0,
                     userId: currentUser.uid,
+                    username: userDisplayName, // Save Username
                     date: new Date().toISOString()
                 };
                 savedIdeas.unshift(newIdea); // Add to top
