@@ -758,6 +758,26 @@
         gap: 5px;
     }
 
+    .delete-idea-btn {
+        background: transparent;
+        border: none;
+        color: #ff4444;
+        cursor: pointer;
+        font-size: 1.1rem;
+        margin-left: 10px;
+        opacity: 0.6;
+        transition: 0.3s;
+        padding: 5px;
+        border-radius: 50%;
+    }
+
+    .delete-idea-btn:hover {
+        opacity: 1;
+        background: rgba(255, 68, 68, 0.1);
+        transform: scale(1.1);
+        text-shadow: 0 0 10px #ff4444;
+    }
+
     /* ---- PROJECTS LIST ---- */
     .ui-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:50px; }
     
@@ -1159,7 +1179,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- FIREBASE SETUP ---
     const firebaseConfig = JSON.parse(__firebase_config);
@@ -1221,22 +1241,58 @@
         ideas.forEach(idea => {
             const card = document.createElement('div');
             card.className = 'idea-card card-3d';
+            
+            // Check ownership
+            const isOwner = currentUser && idea.userId === currentUser.uid;
+            const deleteBtn = isOwner ? 
+                `<button class="delete-idea-btn" data-id="${idea.id}" title="Eliminar mi idea">🗑</button>` : '';
+            
+            // Format Timestamp
+            const date = idea.timestamp ? new Date(idea.timestamp.seconds * 1000).toLocaleDateString() : 'Reciente';
+
             card.innerHTML = `
                 <div class="idea-header">
-                    <div class="idea-user">Usuario Anonimo</div>
-                    <div class="idea-likes">♥ ${idea.likes || 0}</div>
+                    <div class="idea-user" style="${isOwner ? 'color:var(--purple);' : ''}">${isOwner ? 'Tú' : 'Usuario Anonimo'}</div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="idea-likes">♥ ${idea.likes || 0}</div>
+                        ${deleteBtn}
+                    </div>
                 </div>
                 <div class="idea-title">${idea.title}</div>
                 <div class="idea-desc">${idea.desc}</div>
                 <div class="idea-footer">
                     <div class="tag" style="border-color:var(--purple); color:var(--purple);">Comunidad</div>
+                    <span style="font-size:0.7rem; color:#666; margin-left:auto; align-self:center;">${date}</span>
                 </div>
             `;
             grid.appendChild(card);
         });
+
+        // Add Delete Listeners
+        document.querySelectorAll('.delete-idea-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent card interaction
+                const docId = btn.getAttribute('data-id');
+                if(confirm('¿Seguro que quieres eliminar esta idea permanentemente?')) {
+                    await deleteIdea(docId);
+                }
+            });
+        });
         
         // Re-init 3D hover effect for new cards
         init3DCards();
+    }
+
+    // --- DELETE FUNCTION ---
+    async function deleteIdea(docId) {
+        try {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'ideas', docId);
+            await deleteDoc(docRef);
+            // No need to manually refresh, onSnapshot handles it!
+        } catch (e) {
+            console.error("Error deleting doc: ", e);
+            alert("Hubo un error al eliminar. Verifica tu conexión.");
+        }
     }
 
     // --- SUBMIT FUNCTION ---
