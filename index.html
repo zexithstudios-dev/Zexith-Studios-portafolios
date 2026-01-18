@@ -758,6 +758,26 @@
         gap: 5px;
     }
 
+    .delete-idea-btn {
+        background: transparent;
+        border: none;
+        color: #ff4444;
+        cursor: pointer;
+        font-size: 1.1rem;
+        margin-left: 10px;
+        opacity: 0.6;
+        transition: 0.3s;
+        padding: 5px;
+        border-radius: 50%;
+    }
+
+    .delete-idea-btn:hover {
+        opacity: 1;
+        background: rgba(255, 68, 68, 0.1);
+        transform: scale(1.1);
+        text-shadow: 0 0 10px #ff4444;
+    }
+
     /* ---- PROJECTS LIST ---- */
     .ui-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:50px; }
     
@@ -1156,7 +1176,153 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- FIREBASE SETUP ---
+    const firebaseConfig = JSON.parse(__firebase_config);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    let currentUser = null;
+
+    // Auth & Init
+    async function initFirebase() {
+        try {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    subscribeToIdeas();
+                }
+            });
+        } catch (e) {
+            console.error("Auth failed:", e);
+        }
+    }
+
+    // Subscribe to Ideas (Public)
+    function subscribeToIdeas() {
+        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+        
+        onSnapshot(colRef, (snapshot) => {
+            const ideas = [];
+            snapshot.forEach(doc => {
+                ideas.push({ id: doc.id, ...doc.data() });
+            });
+            
+            // Sort by timestamp descending (newest first) in memory
+            ideas.sort((a, b) => {
+                const tA = a.timestamp ? a.timestamp.seconds : 0;
+                const tB = b.timestamp ? b.timestamp.seconds : 0;
+                return tB - tA;
+            });
+            
+            renderIdeas(ideas);
+        }, (error) => {
+            console.error("Error fetching ideas:", error);
+        });
+    }
+
+    // --- RENDER FUNCTION ---
+    function renderIdeas(ideas) {
+        const grid = document.getElementById('ideas-grid');
+        grid.innerHTML = '';
+        
+        ideas.forEach(idea => {
+            const card = document.createElement('div');
+            card.className = 'idea-card card-3d';
+            
+            // Check ownership
+            const isOwner = currentUser && idea.userId === currentUser.uid;
+            const deleteBtn = isOwner ? 
+                `<button class="delete-idea-btn" data-id="${idea.id}" title="Eliminar mi idea">🗑</button>` : '';
+            
+            // Format Timestamp
+            const date = idea.timestamp ? new Date(idea.timestamp.seconds * 1000).toLocaleDateString() : 'Reciente';
+
+            card.innerHTML = `
+                <div class="idea-header">
+                    <div class="idea-user" style="${isOwner ? 'color:var(--purple);' : ''}">${isOwner ? 'Tú' : 'Usuario Anonimo'}</div>
+                    <div style="display:flex; align-items:center;">
+                        <div class="idea-likes">♥ ${idea.likes || 0}</div>
+                        ${deleteBtn}
+                    </div>
+                </div>
+                <div class="idea-title">${idea.title}</div>
+                <div class="idea-desc">${idea.desc}</div>
+                <div class="idea-footer">
+                    <div class="tag" style="border-color:var(--purple); color:var(--purple);">Comunidad</div>
+                    <span style="font-size:0.7rem; color:#666; margin-left:auto; align-self:center;">${date}</span>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        // Add Delete Listeners
+        document.querySelectorAll('.delete-idea-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation(); // Prevent card interaction
+                const docId = btn.getAttribute('data-id');
+                if(confirm('¿Seguro que quieres eliminar esta idea permanentemente?')) {
+                    await deleteIdea(docId);
+                }
+            });
+        });
+        
+        // Re-init 3D hover effect for new cards
+        init3DCards();
+    }
+
+    // --- DELETE FUNCTION ---
+    async function deleteIdea(docId) {
+        try {
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'ideas', docId);
+            await deleteDoc(docRef);
+            // No need to manually refresh, onSnapshot handles it!
+        } catch (e) {
+            console.error("Error deleting doc: ", e);
+            alert("Hubo un error al eliminar. Verifica tu conexión.");
+        }
+    }
+
+    // --- SUBMIT FUNCTION ---
+    document.getElementById('submit-idea-btn').addEventListener('click', async () => {
+        const titleInput = document.getElementById('idea-title-input');
+        const descInput = document.getElementById('idea-desc-input');
+        
+        const title = titleInput.value.trim();
+        const desc = descInput.value.trim();
+        
+        if (title && desc && currentUser) {
+            try {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+                await addDoc(colRef, {
+                    title: title,
+                    desc: desc,
+                    likes: 0,
+                    userId: currentUser.uid,
+                    timestamp: serverTimestamp()
+                });
+                
+                titleInput.value = '';
+                descInput.value = '';
+            } catch (e) {
+                console.error("Error adding doc: ", e);
+            }
+        }
+    });
+
+    // --- INITIALIZATION ---
     setTimeout(() => {
         const loader = document.getElementById('loader');
         if(loader) {
@@ -1165,8 +1331,8 @@
                 loader.remove();
                 initCursor();
                 initScrollAnimations();
-                initBackgroundAnimation(); // Start the 3D Background
-                loadIdeasFromStorage(); // Load saved ideas
+                initBackgroundAnimation(); 
+                initFirebase(); // Start Firebase
             }, 500);
         }
     }, 3500);
@@ -1270,9 +1436,11 @@
         }
     };
 
+    // FIXED: Initialize with Santana (Scripter/White) defaults
     let currentTheme = 'santana'; 
     let targetColor = { r: 255, g: 255, b: 255 }; 
     
+    // --- 3D BACKGROUND ANIMATION SYSTEM ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -1325,34 +1493,48 @@
         centerY = height / 2;
     }
 
+    // --- NEW GRID SYSTEM ---
     function drawGrid() {
-        const time = Date.now() * 0.001;
+        const time = Date.now() * 0.001; // Time in seconds
         const gridSpeed = 0.5; 
         
         ctx.lineWidth = 1;
 
+        // Smooth Vanishing Point based on mouse
+        // We move the vanishing point opposite to mouse to simulate looking around
         const vpX = centerX + (centerX - mouseX) * 0.5;
         const vpY = centerY + (centerY - mouseY) * 0.5;
 
+        // --- VERTICAL LINES ---
+        // Radiating from VP
         const numVLines = 20;
         for (let i = -numVLines; i <= numVLines; i++) {
+            // X position at the bottom of the screen
+            // Spread them out based on width
+            // Add mouse offset to simulate movement/strafe
             const xOffset = (i * (width / 10)) + ((time * 50) % (width/10)); 
-            const xBase = centerX + (i * 200); 
+            
+            // Position at bottom of screen (z=1 approx)
+            const xBase = centerX + (i * 200); // 200px spacing world units
+            // Parallax shift
             const xParallax = (mouseX - centerX) * 0.5;
+            
             const xBottom = xBase - xParallax;
             
             const grad = ctx.createLinearGradient(vpX, vpY, xBottom, height);
-            grad.addColorStop(0, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0)`);
+            grad.addColorStop(0, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0)`); // Fade out at horizon
             grad.addColorStop(0.2, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0.1)`);
             grad.addColorStop(1, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0.3)`);
             
             ctx.strokeStyle = grad;
             
+            // Floor Vertical
             ctx.beginPath();
             ctx.moveTo(vpX, vpY);
             ctx.lineTo(xBottom, height);
             ctx.stroke();
 
+            // Ceiling Vertical (Mirror)
             const gradCeil = ctx.createLinearGradient(vpX, vpY, xBottom, 0);
             gradCeil.addColorStop(0, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0)`);
             gradCeil.addColorStop(0.2, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0.1)`);
@@ -1366,25 +1548,36 @@
             ctx.stroke();
         }
 
+        // --- HORIZONTAL LINES ---
+        // Moving towards viewer
         const numHLines = 15;
+        // Animation loop 0 to 1
         const loopPhase = (time * gridSpeed) % 1; 
         
         for (let i = 0; i < numHLines; i++) {
-            const t = (i + loopPhase) / numHLines; 
-            const p = Math.pow(t, 3);
+            // Z depth logic: 
+            // We want lines to come from Z=Infinity (Horizon) to Z=1 (Screen)
+            // A simple geometric series or 1/x looks best
+            
+            // Normalized position 0 to 1 (0 = horizon, 1 = bottom)
+            
+            const t = (i + loopPhase) / numHLines; // 0.0 to 1.0 moving
+            const p = Math.pow(t, 3); // Curve for perspective (higher power = more bunching at horizon)
             
             const yOffset = p * (height / 2);
-            const alpha = p * 0.5;
+            const alpha = p * 0.5; // Fade out near horizon
             
             ctx.strokeStyle = `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, ${alpha})`;
 
-            if (yOffset > 1) {
+            // Floor
+            if (yOffset > 1) { // Don't draw exactly on horizon pixel
                 ctx.beginPath();
                 ctx.moveTo(0, vpY + yOffset);
                 ctx.lineTo(width, vpY + yOffset);
                 ctx.stroke();
             }
             
+            // Ceiling
             if (yOffset > 1) {
                 ctx.beginPath();
                 ctx.moveTo(0, vpY - yOffset);
@@ -1413,11 +1606,14 @@
     function animateBackground() {
         ctx.clearRect(0, 0, width, height);
         
+        // Update mouse smoothing
         mouseX += (targetMouseX - mouseX) * 0.05;
         mouseY += (targetMouseY - mouseY) * 0.05;
 
+        // Draw 3D Grid first (behind stars)
         drawGrid();
 
+        // Draw Stars
         stars.forEach(star => {
             star.update();
             star.draw();
@@ -1426,6 +1622,7 @@
         requestAnimationFrame(animateBackground);
     }
 
+    // --- COLOR TRANSITIONS ---
     function updateThemeColor(profile) {
         if(profile === 'scripter') {
             targetColor = { r: 255, g: 255, b: 255 };
@@ -1435,6 +1632,8 @@
             targetColor = { r: 255, g: 215, b: 0 };
         }
     }
+
+    // --- EXISTING LOGIC ---
 
     const tabBtns = document.querySelectorAll('.tab-btn');
     const profileCards = document.querySelectorAll('.profile-card');
@@ -1488,17 +1687,30 @@
         const main = document.getElementById('main-site');
         const selection = document.getElementById('selection-screen');
         
+        // 1. Fade out main
         main.classList.remove('visible');
         
+        // 2. Wait for transition
         setTimeout(() => {
             main.style.display = 'none';
+            
+            // 3. Show selection
             selection.style.display = 'flex';
-            selection.style.transform = 'none';
+            selection.style.transform = 'none'; // RESET TRANSFORM HERE
+            
+            // Force reflow/repaint to ensure transition works
             void selection.offsetWidth; 
             selection.classList.remove('fade-out');
+            
+            // 4. Reset scroll
             window.scrollTo(0,0);
+            
+            // 5. Reset animations for next time
             document.querySelectorAll('.reveal.active').forEach(el => el.classList.remove('active'));
+            
+            // 6. Reset navbar state
             document.getElementById('navbar').classList.remove('scrolled');
+            
         }, 500); 
     }
 
@@ -1515,16 +1727,18 @@
 
         main.style.display = 'block'; 
         
+        // Execute transitions immediately for snappier feel
         setTimeout(() => {
             selection.classList.add('fade-out');
             main.classList.add('visible');
-        }, 10);
+        }, 10); // 10ms delay to allow DOM to register display:block
 
+        // Cleanup after transition (0.5s)
         setTimeout(() => {
             selection.style.display = 'none';
-            initCursor(); 
+            initCursor(); // Ensure cursor is active
             init3DCards();
-        }, 500);
+        }, 500); // Reduced from 1200ms
     }
 
     function loadProfile(info) {
@@ -1665,6 +1879,7 @@
 
         const cursor = document.querySelector('.custom-cursor');
 
+        // Initial setup only once
         if (!cursorInitialized) {
             const arrowSVG = `
                 <svg class="cursor-arrow" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1709,7 +1924,7 @@
         }
 
         updateClickables();
-        setTimeout(updateClickables, 1500); 
+        setTimeout(updateClickables, 1500); // Re-run shortly after DOM updates
     }
 
     function updateScrollProgress() {
@@ -1808,67 +2023,6 @@
         });
     });
 
-    // --- IDEAS LOGIC ---
-    let savedIdeas = [];
-
-    function loadIdeasFromStorage() {
-        const stored = localStorage.getItem('zexith_ideas');
-        if (stored) {
-            savedIdeas = JSON.parse(stored);
-            renderIdeas();
-        }
-    }
-
-    function renderIdeas() {
-        const grid = document.getElementById('ideas-grid');
-        grid.innerHTML = '';
-        
-        savedIdeas.forEach(idea => {
-            const card = document.createElement('div');
-            card.className = 'idea-card card-3d';
-            card.innerHTML = `
-                <div class="idea-header">
-                    <div class="idea-user">Usuario Anonimo</div>
-                    <div class="idea-likes">♥ ${idea.likes || 0}</div>
-                </div>
-                <div class="idea-title">${idea.title}</div>
-                <div class="idea-desc">${idea.desc}</div>
-                <div class="idea-footer">
-                    <div class="tag" style="border-color:var(--purple); color:var(--purple);">Comunidad</div>
-                </div>
-            `;
-            grid.prepend(card);
-        });
-        
-        // Re-init 3D hover effect for new cards
-        init3DCards();
-    }
-
-    document.getElementById('submit-idea-btn').addEventListener('click', () => {
-        const titleInput = document.getElementById('idea-title-input');
-        const descInput = document.getElementById('idea-desc-input');
-        
-        const title = titleInput.value.trim();
-        const desc = descInput.value.trim();
-        
-        if (title && desc) {
-            const newIdea = {
-                title: title,
-                desc: desc,
-                likes: Math.floor(Math.random() * 10), // Random likes for demo
-                date: new Date().toISOString()
-            };
-            
-            savedIdeas.push(newIdea);
-            localStorage.setItem('zexith_ideas', JSON.stringify(savedIdeas));
-            
-            renderIdeas();
-            
-            titleInput.value = '';
-            descInput.value = '';
-        }
-    });
-
     document.getElementById('category-filters').addEventListener('click', (e) => {
         if (e.target.classList.contains('filter-btn')) {
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -1957,6 +2111,9 @@
     
     closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    
+    // Assign global functions
+    window.returnToSelection = returnToSelection;
 </script>
 
 </body>
