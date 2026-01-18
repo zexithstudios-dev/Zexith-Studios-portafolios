@@ -1181,17 +1181,34 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- FIREBASE SETUP ---
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    // --- FIREBASE / LOCAL MODE SETUP ---
+    let db, auth, currentUser, appId;
+    let useFirebase = false;
+    let savedIdeas = []; // For Local Mode
 
-    let currentUser = null;
+    async function initSystem() {
+        try {
+            // Check if Firebase config exists (Only in Preview)
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                useFirebase = true;
+                
+                await initFirebaseAuth();
+            } else {
+                throw new Error("Firebase config missing");
+            }
+        } catch (e) {
+            console.log("Modo Local Activado (GitHub/Offline)");
+            useFirebase = false;
+            initLocalMode();
+        }
+    }
 
-    // Auth & Init
-    async function initFirebase() {
+    async function initFirebaseAuth() {
         try {
             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                 await signInWithCustomToken(auth, __initial_auth_token);
@@ -1210,8 +1227,27 @@
         }
     }
 
-    // Subscribe to Ideas (Public)
+    // --- LOCAL MODE LOGIC ---
+    function initLocalMode() {
+        // Mock User for local interaction
+        currentUser = { uid: "local-user-id" };
+        loadIdeasFromStorage();
+    }
+
+    function loadIdeasFromStorage() {
+        const stored = localStorage.getItem('zexith_ideas');
+        if (stored) {
+            savedIdeas = JSON.parse(stored);
+            // Sort by fake timestamp (newest first)
+            savedIdeas.sort((a, b) => new Date(b.date) - new Date(a.date));
+            renderIdeas(savedIdeas);
+        }
+    }
+
+    // --- FIREBASE LOGIC ---
     function subscribeToIdeas() {
+        if (!useFirebase) return;
+        
         const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
         
         onSnapshot(colRef, (snapshot) => {
@@ -1220,7 +1256,7 @@
                 ideas.push({ id: doc.id, ...doc.data() });
             });
             
-            // Sort by timestamp descending (newest first) in memory
+            // Sort by timestamp descending
             ideas.sort((a, b) => {
                 const tA = a.timestamp ? a.timestamp.seconds : 0;
                 const tB = b.timestamp ? b.timestamp.seconds : 0;
@@ -1248,7 +1284,12 @@
                 `<button class="delete-idea-btn" data-id="${idea.id}" title="Eliminar mi idea">🗑</button>` : '';
             
             // Format Timestamp
-            const date = idea.timestamp ? new Date(idea.timestamp.seconds * 1000).toLocaleDateString() : 'Reciente';
+            let dateStr = "Reciente";
+            if (useFirebase && idea.timestamp) {
+                dateStr = new Date(idea.timestamp.seconds * 1000).toLocaleDateString();
+            } else if (!useFirebase && idea.date) {
+                dateStr = new Date(idea.date).toLocaleDateString();
+            }
 
             card.innerHTML = `
                 <div class="idea-header">
@@ -1262,7 +1303,7 @@
                 <div class="idea-desc">${idea.desc}</div>
                 <div class="idea-footer">
                     <div class="tag" style="border-color:var(--purple); color:var(--purple);">Comunidad</div>
-                    <span style="font-size:0.7rem; color:#666; margin-left:auto; align-self:center;">${date}</span>
+                    <span style="font-size:0.7rem; color:#666; margin-left:auto; align-self:center;">${dateStr}</span>
                 </div>
             `;
             grid.appendChild(card);
@@ -1271,28 +1312,35 @@
         // Add Delete Listeners
         document.querySelectorAll('.delete-idea-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-                e.stopPropagation(); // Prevent card interaction
+                e.stopPropagation(); 
                 const docId = btn.getAttribute('data-id');
-                if(confirm('¿Seguro que quieres eliminar esta idea permanentemente?')) {
-                    await deleteIdea(docId);
+                if(confirm('¿Seguro que quieres eliminar esta idea?')) {
+                    if (useFirebase) {
+                        await deleteIdeaFirebase(docId);
+                    } else {
+                        deleteIdeaLocal(docId);
+                    }
                 }
             });
         });
         
-        // Re-init 3D hover effect for new cards
         init3DCards();
     }
 
-    // --- DELETE FUNCTION ---
-    async function deleteIdea(docId) {
+    // --- DELETE FUNCTIONS ---
+    async function deleteIdeaFirebase(docId) {
         try {
             const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'ideas', docId);
             await deleteDoc(docRef);
-            // No need to manually refresh, onSnapshot handles it!
         } catch (e) {
             console.error("Error deleting doc: ", e);
-            alert("Hubo un error al eliminar. Verifica tu conexión.");
         }
+    }
+
+    function deleteIdeaLocal(docId) {
+        savedIdeas = savedIdeas.filter(idea => idea.id !== docId);
+        localStorage.setItem('zexith_ideas', JSON.stringify(savedIdeas));
+        renderIdeas(savedIdeas);
     }
 
     // --- SUBMIT FUNCTION ---
@@ -1304,21 +1352,37 @@
         const desc = descInput.value.trim();
         
         if (title && desc && currentUser) {
-            try {
-                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
-                await addDoc(colRef, {
+            
+            if (useFirebase) {
+                try {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'ideas');
+                    await addDoc(colRef, {
+                        title: title,
+                        desc: desc,
+                        likes: 0,
+                        userId: currentUser.uid,
+                        timestamp: serverTimestamp()
+                    });
+                } catch (e) {
+                    console.error("Error adding doc: ", e);
+                }
+            } else {
+                // Local Logic
+                const newIdea = {
+                    id: 'local-' + Date.now(), // Fake ID
                     title: title,
                     desc: desc,
                     likes: 0,
                     userId: currentUser.uid,
-                    timestamp: serverTimestamp()
-                });
-                
-                titleInput.value = '';
-                descInput.value = '';
-            } catch (e) {
-                console.error("Error adding doc: ", e);
+                    date: new Date().toISOString()
+                };
+                savedIdeas.unshift(newIdea); // Add to top
+                localStorage.setItem('zexith_ideas', JSON.stringify(savedIdeas));
+                renderIdeas(savedIdeas);
             }
+            
+            titleInput.value = '';
+            descInput.value = '';
         }
     });
 
@@ -1332,7 +1396,7 @@
                 initCursor();
                 initScrollAnimations();
                 initBackgroundAnimation(); 
-                initFirebase(); // Start Firebase
+                initSystem(); // Start the hybrid system
             }, 500);
         }
     }, 3500);
