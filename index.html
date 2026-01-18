@@ -10,6 +10,7 @@
         --blue:#00a2ff;
         --yellow:#ffd700;
         --white:#ffffff;
+        --purple:#a259ff; /* New color for Ideas */
         --gray:#888888;
         --dark:#050000;
         --dark2:#0e0e0e;
@@ -48,6 +49,11 @@
             box-sizing:border-box; 
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
+    }
+
+    /* SMOOTH SCROLLING ENABLED HERE */
+    html {
+        scroll-behavior: smooth;
     }
 
     * {
@@ -607,6 +613,152 @@
     .filter-btn.active { background: rgba(255, 27, 27, 0.15); color: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(255, 27, 27, 0.2); }
     body.theme-scripter .filter-btn.active { background: rgba(255, 255, 255, 0.15); box-shadow: 0 0 15px rgba(255, 255, 255, 0.2); }
 
+    /* IDEAS FORM & INTERFACE */
+    #ideas-interface {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: none;
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .ideas-form-card {
+        background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.9));
+        backdrop-filter: blur(10px);
+        border: 2px solid var(--purple);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 0 30px rgba(162, 89, 255, 0.15);
+    }
+
+    .ideas-form-card h3 {
+        color: var(--purple);
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    
+    .idea-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid #444;
+        border-radius: 12px;
+        padding: 15px;
+        color: white;
+        font-size: 1rem;
+        transition: 0.3s;
+    }
+
+    .idea-input:focus {
+        border-color: var(--purple);
+        outline: none;
+        background: rgba(162, 89, 255, 0.05);
+        box-shadow: 0 0 15px rgba(162, 89, 255, 0.2);
+    }
+
+    textarea.idea-input {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .submit-idea-btn {
+        width: 100%;
+        padding: 15px;
+        background: var(--purple);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: 0.3s;
+        letter-spacing: 1px;
+    }
+
+    .submit-idea-btn:hover {
+        background: #b370ff;
+        box-shadow: 0 0 20px var(--purple);
+        transform: translateY(-2px);
+    }
+
+    .ideas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .idea-card {
+        background: rgba(15, 15, 15, 0.8);
+        border: 1px solid #333;
+        border-radius: 16px;
+        padding: 25px;
+        transition: 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .idea-card:hover {
+        border-color: var(--purple);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(162, 89, 255, 0.2);
+    }
+
+    .idea-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: var(--purple);
+    }
+
+    .idea-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .idea-user {
+        font-size: 0.8rem;
+        color: #888;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .idea-title {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .idea-desc {
+        color: #aaa;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .idea-footer {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .idea-likes {
+        color: var(--purple);
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* ---- PROJECTS LIST ---- */
     .ui-list{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:50px; }
     
     .ui-card{ 
@@ -639,6 +791,10 @@
     .status-badge { position: absolute; top: 20px; right: 20px; padding: 8px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; z-index: 10; letter-spacing: 1px; backdrop-filter: blur(10px); }
     .status-badge.completed { background: rgba(0, 255, 100, 0.15); color: #0f0; border: 2px solid rgba(0, 255, 100, 0.5); box-shadow: 0 0 20px rgba(0, 255, 100, 0.3); }
     .status-badge.development { background: rgba(255, 165, 0, 0.15); color: #ffa500; border: 2px solid rgba(255, 165, 0, 0.5); animation: pulseGlow 2s ease-in-out infinite; box-shadow: 0 0 20px rgba(255, 165, 0, 0.3); }
+    
+    /* NEW IDEA BADGE STYLE */
+    .status-badge.idea { background: rgba(162, 89, 255, 0.15); color: #a259ff; border: 2px solid rgba(162, 89, 255, 0.5); box-shadow: 0 0 20px rgba(162, 89, 255, 0.3); }
+
     @keyframes pulseGlow { 0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(255, 165, 0, 0.3); } 50% { opacity: 0.7; box-shadow: 0 0 30px rgba(255, 165, 0, 0.6); } }
 
     .faq-container { max-width: 900px; margin: 0 auto; }
@@ -954,8 +1110,28 @@
             <div class="filter-btn active" data-filter="all">Todos</div>
             <div class="filter-btn" data-filter="completed">Completados</div>
             <div class="filter-btn" data-filter="development">En Desarrollo</div>
+            <div class="filter-btn" data-filter="idea">Ideas / Conceptos</div>
         </div>
+        
         <div class="ui-list" id="projects-container"></div>
+
+        <!-- NEW IDEAS INTERFACE -->
+        <div id="ideas-interface">
+            <div class="ideas-form-card">
+                <h3>Comparte tu Idea</h3>
+                <div class="form-group">
+                    <input type="text" id="idea-title-input" class="idea-input" placeholder="Título de tu idea futurista...">
+                </div>
+                <div class="form-group">
+                    <textarea id="idea-desc-input" class="idea-input" placeholder="Describe tu concepto aquí..."></textarea>
+                </div>
+                <button class="submit-idea-btn" id="submit-idea-btn">Publicar en el Muro</button>
+            </div>
+            
+            <div class="ideas-grid" id="ideas-grid">
+                <!-- User submitted ideas will appear here -->
+            </div>
+        </div>
     </section>
 
     <section id="faq" class="reveal">
@@ -990,6 +1166,7 @@
                 initCursor();
                 initScrollAnimations();
                 initBackgroundAnimation(); // Start the 3D Background
+                loadIdeasFromStorage(); // Load saved ideas
             }, 500);
         }
     }, 3500);
@@ -1028,8 +1205,8 @@
             ],
             tools: [
                 { name: "Figma", desc: "Prototipos & Vectores", img: `<svg viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 28.5C19 25.98 20 23.56 21.78 21.78C23.56 20 25.98 19 28.5 19C31.02 19 33.44 20 35.22 21.78C37 23.56 38 25.98 38 28.5C38 31.02 37 33.44 35.22 35.22C33.44 37 31.02 38 28.5 38H19V28.5Z" fill="#1ABCFE"/><path d="M0 47.5C0 44.98 1 42.56 2.78 40.78C4.56 39 6.98 38 9.5 38H19V47.5C19 50.02 18 52.44 16.22 54.22C14.44 56 12.02 57 9.5 57C6.98 57 4.56 56 2.78 54.22C1 52.44 0 50.02 0 47.5Z" fill="#0ACF83"/><path d="M19 0V19H28.5C31.02 19 33.44 18 35.22 16.22C37 14.44 38 12.02 38 9.5C38 6.98 37 4.56 35.22 2.78C33.44 1 31.02 0 28.5 0H19Z" fill="#FF7262"/><path d="M0 9.5C0 12.02 1 14.44 2.78 16.22C4.56 18 6.98 19 9.5 19H19V0H9.5C6.98 0 4.56 1 2.78 2.78C1 4.56 0 6.98 0 9.5Z" fill="#F24E1E"/><path d="M0 28.5C0 31.02 1 33.44 2.78 35.22C4.56 37 6.98 38 9.5 38H19V19H9.5C6.98 19 4.56 20 2.78 21.78C1 23.56 0 25.98 0 28.5Z" fill="#A259FF"/></svg>` },
-                { name: "Photoshop", desc: "Texturas & VFX", img: `<img src="https://cdn.discordapp.com/attachments/1431234929123004517/1461506751915491439/images_3.png?ex=696acdbb&is=69697c3b&hm=75f6f2158448962210cdeb5b7c60fad3b1036c6fefd63f873822eb06ba1a9939&">` },
-                { name: "Roblox Studio", desc: "Implementación", img: `<img src="https://cdn.discordapp.com/attachments/1431234929123004517/1461506810279366696/62f64963b3b8eda573996bdfb646729e818ef77b_2_500x500.png?ex=696acdc9&is=69697c49&hm=dfd1f11d1b368964c77569790146dc65a47028c93028405da233cf66ac30785a&">` }
+                { name: "Photoshop", desc: "Texturas & VFX", img: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="20" fill="#001E36"/><text x="18" y="68" font-family="sans-serif" font-weight="900" font-size="55" fill="#31A8FF">P</text><text x="58" y="68" font-family="sans-serif" font-weight="900" font-size="55" fill="#31A8FF">s</text></svg>` },
+                { name: "Roblox Studio", desc: "Implementación", img: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-15 50 50)"><rect x="15" y="15" width="70" height="70" rx="10" fill="#00A2FF"/><rect x="32" y="32" width="36" height="36" rx="4" fill="#000000" fill-opacity="0.5"/><rect x="35" y="35" width="30" height="30" rx="2" fill="#0e0e0e"/></g></svg>` }
             ],
             projects: [
                 { 
@@ -1081,7 +1258,7 @@
             tools: [
                 { name: "VS Code", desc: "Rojo & Copilot", img: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M23.1,13.6l-20.7,16L2.3,71.2l20.8,15.2l48.6-43.2L23.1,13.6z M19.4,75.9L9.1,68V32.8l10.3-7.9V75.9z"/><path fill="#ffffff" d="M74.8,11.2l-26.6,22L90.7,68l7-5.4V38.2L74.8,11.2z"/></svg>` },
                 { name: "GitHub", desc: "Control de versiones", img: `<svg viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></svg>` },
-                { name: "Roblox Studio", desc: "Testing & Deploy", img: `<img src="https://cdn.discordapp.com/attachments/1431234929123004517/1461506810279366696/62f64963b3b8eda573996bdfb646729e818ef77b_2_500x500.png?ex=696acdc9&is=69697c49&hm=dfd1f11d1b368964c77569790146dc65a47028c93028405da233cf66ac30785a&">` }
+                { name: "Roblox Studio", desc: "Testing & Deploy", img: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-15 50 50)"><rect x="15" y="15" width="70" height="70" rx="10" fill="#00A2FF"/><rect x="32" y="32" width="36" height="36" rx="4" fill="#000000" fill-opacity="0.5"/><rect x="35" y="35" width="30" height="30" rx="2" fill="#0e0e0e"/></g></svg>` }
             ],
             projects: [],
             faqs: [
@@ -1093,11 +1270,9 @@
         }
     };
 
-    // FIXED: Initialize with Santana (Scripter/White) defaults
     let currentTheme = 'santana'; 
     let targetColor = { r: 255, g: 255, b: 255 }; 
     
-    // --- 3D BACKGROUND ANIMATION SYSTEM ---
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -1150,48 +1325,34 @@
         centerY = height / 2;
     }
 
-    // --- NEW GRID SYSTEM ---
     function drawGrid() {
-        const time = Date.now() * 0.001; // Time in seconds
+        const time = Date.now() * 0.001;
         const gridSpeed = 0.5; 
         
         ctx.lineWidth = 1;
 
-        // Smooth Vanishing Point based on mouse
-        // We move the vanishing point opposite to mouse to simulate looking around
         const vpX = centerX + (centerX - mouseX) * 0.5;
         const vpY = centerY + (centerY - mouseY) * 0.5;
 
-        // --- VERTICAL LINES ---
-        // Radiating from VP
         const numVLines = 20;
         for (let i = -numVLines; i <= numVLines; i++) {
-            // X position at the bottom of the screen
-            // Spread them out based on width
-            // Add mouse offset to simulate movement/strafe
             const xOffset = (i * (width / 10)) + ((time * 50) % (width/10)); 
-            
-            // Position at bottom of screen (z=1 approx)
-            const xBase = centerX + (i * 200); // 200px spacing world units
-            // Parallax shift
+            const xBase = centerX + (i * 200); 
             const xParallax = (mouseX - centerX) * 0.5;
-            
             const xBottom = xBase - xParallax;
             
             const grad = ctx.createLinearGradient(vpX, vpY, xBottom, height);
-            grad.addColorStop(0, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0)`); // Fade out at horizon
+            grad.addColorStop(0, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0)`);
             grad.addColorStop(0.2, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0.1)`);
             grad.addColorStop(1, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0.3)`);
             
             ctx.strokeStyle = grad;
             
-            // Floor Vertical
             ctx.beginPath();
             ctx.moveTo(vpX, vpY);
             ctx.lineTo(xBottom, height);
             ctx.stroke();
 
-            // Ceiling Vertical (Mirror)
             const gradCeil = ctx.createLinearGradient(vpX, vpY, xBottom, 0);
             gradCeil.addColorStop(0, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0)`);
             gradCeil.addColorStop(0.2, `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, 0.1)`);
@@ -1205,36 +1366,25 @@
             ctx.stroke();
         }
 
-        // --- HORIZONTAL LINES ---
-        // Moving towards viewer
         const numHLines = 15;
-        // Animation loop 0 to 1
         const loopPhase = (time * gridSpeed) % 1; 
         
         for (let i = 0; i < numHLines; i++) {
-            // Z depth logic: 
-            // We want lines to come from Z=Infinity (Horizon) to Z=1 (Screen)
-            // A simple geometric series or 1/x looks best
-            
-            // Normalized position 0 to 1 (0 = horizon, 1 = bottom)
-            
-            const t = (i + loopPhase) / numHLines; // 0.0 to 1.0 moving
-            const p = Math.pow(t, 3); // Curve for perspective (higher power = more bunching at horizon)
+            const t = (i + loopPhase) / numHLines; 
+            const p = Math.pow(t, 3);
             
             const yOffset = p * (height / 2);
-            const alpha = p * 0.5; // Fade out near horizon
+            const alpha = p * 0.5;
             
             ctx.strokeStyle = `rgba(${targetColor.r}, ${targetColor.g}, ${targetColor.b}, ${alpha})`;
 
-            // Floor
-            if (yOffset > 1) { // Don't draw exactly on horizon pixel
+            if (yOffset > 1) {
                 ctx.beginPath();
                 ctx.moveTo(0, vpY + yOffset);
                 ctx.lineTo(width, vpY + yOffset);
                 ctx.stroke();
             }
             
-            // Ceiling
             if (yOffset > 1) {
                 ctx.beginPath();
                 ctx.moveTo(0, vpY - yOffset);
@@ -1263,14 +1413,11 @@
     function animateBackground() {
         ctx.clearRect(0, 0, width, height);
         
-        // Update mouse smoothing
         mouseX += (targetMouseX - mouseX) * 0.05;
         mouseY += (targetMouseY - mouseY) * 0.05;
 
-        // Draw 3D Grid first (behind stars)
         drawGrid();
 
-        // Draw Stars
         stars.forEach(star => {
             star.update();
             star.draw();
@@ -1279,7 +1426,6 @@
         requestAnimationFrame(animateBackground);
     }
 
-    // --- COLOR TRANSITIONS ---
     function updateThemeColor(profile) {
         if(profile === 'scripter') {
             targetColor = { r: 255, g: 255, b: 255 };
@@ -1289,8 +1435,6 @@
             targetColor = { r: 255, g: 215, b: 0 };
         }
     }
-
-    // --- EXISTING LOGIC ---
 
     const tabBtns = document.querySelectorAll('.tab-btn');
     const profileCards = document.querySelectorAll('.profile-card');
@@ -1344,30 +1488,17 @@
         const main = document.getElementById('main-site');
         const selection = document.getElementById('selection-screen');
         
-        // 1. Fade out main
         main.classList.remove('visible');
         
-        // 2. Wait for transition
         setTimeout(() => {
             main.style.display = 'none';
-            
-            // 3. Show selection
             selection.style.display = 'flex';
-            selection.style.transform = 'none'; // RESET TRANSFORM HERE
-            
-            // Force reflow/repaint to ensure transition works
+            selection.style.transform = 'none';
             void selection.offsetWidth; 
             selection.classList.remove('fade-out');
-            
-            // 4. Reset scroll
             window.scrollTo(0,0);
-            
-            // 5. Reset animations for next time
             document.querySelectorAll('.reveal.active').forEach(el => el.classList.remove('active'));
-            
-            // 6. Reset navbar state
             document.getElementById('navbar').classList.remove('scrolled');
-            
         }, 500); 
     }
 
@@ -1384,18 +1515,16 @@
 
         main.style.display = 'block'; 
         
-        // Execute transitions immediately for snappier feel
         setTimeout(() => {
             selection.classList.add('fade-out');
             main.classList.add('visible');
-        }, 10); // 10ms delay to allow DOM to register display:block
+        }, 10);
 
-        // Cleanup after transition (0.5s)
         setTimeout(() => {
             selection.style.display = 'none';
-            initCursor(); // Ensure cursor is active
+            initCursor(); 
             init3DCards();
-        }, 500); // Reduced from 1200ms
+        }, 500);
     }
 
     function loadProfile(info) {
@@ -1463,7 +1592,7 @@
             projArea.innerHTML = info.projects.map(p => `
                 <div class="ui-card" data-title="${p.title}" data-desc="${p.desc}" data-status="${p.status}">
                     <div class="ui-preview">
-                        <div class="status-badge ${p.status}">${p.status === 'completed' ? 'COMPLETADO' : 'EN DESARROLLO'}</div>
+                        <div class="status-badge ${p.status}">${p.status === 'completed' ? 'COMPLETADO' : (p.status === 'development' ? 'EN DESARROLLO' : 'IDEA / CONCEPTO')}</div>
                         ${p.image ? `<img src="${p.image}" alt="${p.title}" class="ui-preview-image">` : '<div class="preview-icon">▶</div>'}
                     </div>
                     <div class="ui-content">
@@ -1536,7 +1665,6 @@
 
         const cursor = document.querySelector('.custom-cursor');
 
-        // Initial setup only once
         if (!cursorInitialized) {
             const arrowSVG = `
                 <svg class="cursor-arrow" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1566,7 +1694,7 @@
         }
 
         function updateClickables() {
-            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back');
+            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back, #submit-idea-btn, .idea-input');
             
             clickables.forEach(el => {
                 el.addEventListener('mouseenter', () => {
@@ -1581,7 +1709,7 @@
         }
 
         updateClickables();
-        setTimeout(updateClickables, 1500); // Re-run shortly after DOM updates
+        setTimeout(updateClickables, 1500); 
     }
 
     function updateScrollProgress() {
@@ -1609,7 +1737,7 @@
     }
 
     function init3DCards() {
-        const cards = document.querySelectorAll('.ui-card, .team-member, .skill-category');
+        const cards = document.querySelectorAll('.ui-card, .team-member, .skill-category, .ideas-form-card, .idea-card');
         
         cards.forEach(card => {
             card.classList.add('card-3d');
@@ -1680,26 +1808,99 @@
         });
     });
 
+    // --- IDEAS LOGIC ---
+    let savedIdeas = [];
+
+    function loadIdeasFromStorage() {
+        const stored = localStorage.getItem('zexith_ideas');
+        if (stored) {
+            savedIdeas = JSON.parse(stored);
+            renderIdeas();
+        }
+    }
+
+    function renderIdeas() {
+        const grid = document.getElementById('ideas-grid');
+        grid.innerHTML = '';
+        
+        savedIdeas.forEach(idea => {
+            const card = document.createElement('div');
+            card.className = 'idea-card card-3d';
+            card.innerHTML = `
+                <div class="idea-header">
+                    <div class="idea-user">Usuario Anonimo</div>
+                    <div class="idea-likes">♥ ${idea.likes || 0}</div>
+                </div>
+                <div class="idea-title">${idea.title}</div>
+                <div class="idea-desc">${idea.desc}</div>
+                <div class="idea-footer">
+                    <div class="tag" style="border-color:var(--purple); color:var(--purple);">Comunidad</div>
+                </div>
+            `;
+            grid.prepend(card);
+        });
+        
+        // Re-init 3D hover effect for new cards
+        init3DCards();
+    }
+
+    document.getElementById('submit-idea-btn').addEventListener('click', () => {
+        const titleInput = document.getElementById('idea-title-input');
+        const descInput = document.getElementById('idea-desc-input');
+        
+        const title = titleInput.value.trim();
+        const desc = descInput.value.trim();
+        
+        if (title && desc) {
+            const newIdea = {
+                title: title,
+                desc: desc,
+                likes: Math.floor(Math.random() * 10), // Random likes for demo
+                date: new Date().toISOString()
+            };
+            
+            savedIdeas.push(newIdea);
+            localStorage.setItem('zexith_ideas', JSON.stringify(savedIdeas));
+            
+            renderIdeas();
+            
+            titleInput.value = '';
+            descInput.value = '';
+        }
+    });
+
     document.getElementById('category-filters').addEventListener('click', (e) => {
         if (e.target.classList.contains('filter-btn')) {
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             e.target.classList.add('active');
 
             const filter = e.target.getAttribute('data-filter');
+            const projectsContainer = document.getElementById('projects-container');
+            const ideasInterface = document.getElementById('ideas-interface');
             const cards = document.querySelectorAll('.ui-card');
 
-            cards.forEach(card => {
-                if (filter === 'all') {
-                    card.classList.remove('hidden');
-                } else {
-                    const status = card.getAttribute('data-status');
-                    if (status === filter) {
+            if (filter === 'idea') {
+                // Show Ideas Interface
+                projectsContainer.style.display = 'none';
+                ideasInterface.style.display = 'flex';
+            } else {
+                // Show Projects Grid
+                projectsContainer.style.display = 'grid';
+                ideasInterface.style.display = 'none';
+                
+                cards.forEach(card => {
+                    if (filter === 'all') {
                         card.classList.remove('hidden');
                     } else {
-                        card.classList.add('hidden');
+                        const status = card.getAttribute('data-status');
+                        if (status === filter) {
+                            card.classList.remove('hidden');
+                        } else {
+                            card.classList.add('hidden');
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     });
 
