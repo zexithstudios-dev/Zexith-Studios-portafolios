@@ -1174,10 +1174,10 @@
 <!-- USERNAME MODAL -->
 <div id="username-modal">
     <div class="username-content">
-        <h2>Bienvenido</h2>
-        <p style="color:#aaa; margin-bottom:20px;">¿Cómo te gustaría ser llamado?</p>
-        <input type="text" id="username-input" placeholder="Tu nombre..." maxlength="15">
-        <button id="save-username-btn">Continuar</button>
+        <h2>Identificación</h2>
+        <p style="color:#aaa; margin-bottom:20px;">Ingresa tu ID de Acceso o Nombre</p>
+        <input type="text" id="username-input" placeholder="ID / Nombre..." maxlength="15">
+        <button id="save-username-btn">Entrar</button>
     </div>
 </div>
 
@@ -1405,10 +1405,19 @@
 
     document.getElementById('save-username-btn').addEventListener('click', () => {
         const input = document.getElementById('username-input');
-        const name = input.value.trim();
-        if(name) {
-            userDisplayName = name;
-            localStorage.setItem('zexith_username', name);
+        const val = input.value.trim();
+        
+        if(val) {
+            // Secret ID Logic
+            if(val === '7823') {
+                userDisplayName = "William";
+            } else if(val === '7824') {
+                userDisplayName = "Santana";
+            } else {
+                userDisplayName = val;
+            }
+            
+            localStorage.setItem('zexith_username', userDisplayName);
             document.getElementById('username-modal').classList.remove('active');
         }
     });
