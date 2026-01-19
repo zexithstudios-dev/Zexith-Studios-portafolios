@@ -1177,7 +1177,6 @@
 
 <div class="custom-cursor"></div>
 
-<!-- USERNAME MODAL -->
 <div id="username-modal">
     <div class="username-content">
         <h2>Identificación</h2>
@@ -1187,7 +1186,6 @@
     </div>
 </div>
 
-<!-- DELETE CONFIRMATION MODAL -->
 <div id="delete-confirm-modal">
     <div class="delete-confirm-content">
         <h2>Eliminar Idea</h2>
@@ -1226,7 +1224,6 @@
         </div>
     </div>
 
-    <!-- NEW: Identity Info -->
     <div class="user-identity-display" style="margin-top: 30px; z-index: 10; text-align: center;">
         <p style="color: #888; font-size: 0.9rem; margin-bottom: 5px;">Identificado como:</p>
         <div style="font-size: 1.2rem; color: white; font-weight: 700; margin-bottom: 10px;">
@@ -1330,7 +1327,6 @@
         
         <div class="ui-list" id="projects-container"></div>
 
-        <!-- NEW IDEAS INTERFACE -->
         <div id="ideas-interface">
             <div class="ideas-form-card">
                 <h3>Comparte tu Idea</h3>
@@ -1344,8 +1340,7 @@
             </div>
             
             <div class="ideas-grid" id="ideas-grid">
-                <!-- User submitted ideas will appear here -->
-            </div>
+                </div>
         </div>
     </section>
 
@@ -1376,21 +1371,16 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- CONFIGURACIÓN DE FIREBASE (PARA QUE FUNCIONE GLOBALMENTE FUERA DEL EDITOR) ---
-    // 1. Ve a console.firebase.google.com y crea un proyecto gratis.
-    // 2. Registra una app web y copia la configuración aquí.
-    // 3. Habilita "Firestore Database" y "Authentication" (Anónimo) en la consola de Firebase.
-    const USER_FIREBASE_CONFIG = null; 
-    /* Ejemplo:
+    // --- CONFIGURACIÓN DE FIREBASE (YA INTEGRADA) ---
     const USER_FIREBASE_CONFIG = {
-        apiKey: "AIzaSy...",
-        authDomain: "...",
-        projectId: "...",
-        storageBucket: "...",
-        messagingSenderId: "...",
-        appId: "..."
+        apiKey: "AIzaSyBsiy12zMwHjiN2Bt9p6THBJgysw4JYliI",
+        authDomain: "zexith-studios-62367.firebaseapp.com",
+        projectId: "zexith-studios-62367",
+        storageBucket: "zexith-studios-62367.firebasestorage.app",
+        messagingSenderId: "1096402888752",
+        appId: "1:1096402888752:web:088297849df6641461a5f5",
+        measurementId: "G-TS2E6QNZ7E"
     };
-    */
 
     // --- FIREBASE / LOCAL MODE SETUP ---
     let db, auth, currentUser, appId;
