@@ -36,7 +36,7 @@
             cursor: none !important;
         }
 
-        a, button, input, textarea, select, [role="button"], .clickable, .lang-opt {
+        a, button, input, textarea, select, [role="button"], .clickable, .lang-opt, .intro-lang-btn {
             cursor: none !important;
         }
     }
@@ -502,6 +502,83 @@
     .profile-avatar { width: 100px; height: 100px; border-radius: 50%; background: #222; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
     .profile-card h3 { font-size: 1.5rem; color: white; margin-bottom: 5px; }
     .profile-card span { font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* LANGUAGE INTRO SCREEN (NEW) */
+    #language-intro-screen {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: radial-gradient(circle at center, #111 0%, #000 100%);
+        z-index: 1000000; /* Highest priority */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        transition: opacity 0.8s ease;
+    }
+
+    #language-intro-screen.fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .lang-intro-content {
+        text-align: center;
+        animation: fadeInLang 1s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    @keyframes fadeInLang {
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .lang-intro-title {
+        color: #fff;
+        font-size: clamp(1.5rem, 5vw, 2.5rem);
+        font-weight: 300;
+        letter-spacing: 8px;
+        margin-bottom: 50px;
+        text-transform: uppercase;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding-bottom: 20px;
+        display: inline-block;
+    }
+
+    .lang-intro-options {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .intro-lang-btn {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #888;
+        padding: 15px 40px;
+        font-size: 1rem;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        border-radius: 4px;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .intro-lang-btn:hover {
+        border-color: #fff;
+        color: #fff;
+        background: rgba(255,255,255,0.05);
+        box-shadow: 0 0 30px rgba(255,255,255,0.1);
+        transform: scale(1.05);
+    }
+
+    .lang-intro-separator {
+        width: 1px;
+        height: 40px;
+        background: rgba(255,255,255,0.1);
+    }
 
     /* LOADER */
     .loader-wrapper {
@@ -1207,6 +1284,18 @@
 
 <canvas id="bg-canvas"></canvas>
 
+<!-- LANGUAGE INTRO SCREEN (NEW) -->
+<div id="language-intro-screen">
+    <div class="lang-intro-content">
+        <h1 class="lang-intro-title">SELECT LANGUAGE</h1>
+        <div class="lang-intro-options">
+            <button class="intro-lang-btn" onclick="window.selectIntroLanguage('es')">ESPAÑOL</button>
+            <span class="lang-intro-separator"></span>
+            <button class="intro-lang-btn" onclick="window.selectIntroLanguage('en')">ENGLISH</button>
+        </div>
+    </div>
+</div>
+
 <div class="loader-wrapper" id="loader">
     <div class="loader-content">
         <div class="loader-text">ZEXITH STUDIOS</div>
@@ -1765,23 +1854,65 @@
     });
 
     // --- INITIALIZATION ---
-    setTimeout(() => {
+    
+    // NEW FUNCTION: Handle Language Selection Click
+    window.selectIntroLanguage = function(lang) {
+        localStorage.setItem('zexith_lang', lang);
+        localStorage.setItem('zexith_has_selected_lang', 'true');
+        
+        const langScreen = document.getElementById('language-intro-screen');
+        langScreen.classList.add('fade-out');
+        
+        setTimeout(() => {
+            langScreen.style.display = 'none';
+            // Start the normal loader sequence now
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex'; // Ensure it's visible before fading out
+            setTimeout(() => {
+               // Resume normal flow
+               startMainExperience();
+            }, 100); 
+        }, 800);
+    }
+    
+    // NEW FUNCTION: Logic for Main Experience Start (Loader -> Site)
+    function startMainExperience() {
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => { 
+                    loader.remove();
+                    initCursor();
+                    initScrollAnimations();
+                    initBackgroundAnimation(); 
+                    initSystem(); 
+                    
+                    // Init Language
+                    const savedLang = localStorage.getItem('zexith_lang') || 'es';
+                    changeLanguage(savedLang);
+                }, 500);
+            }
+        }, 3500);
+    }
+    
+    // STARTUP LOGIC
+    document.addEventListener("DOMContentLoaded", () => {
+        const hasSelectedLang = localStorage.getItem('zexith_has_selected_lang');
+        const langScreen = document.getElementById('language-intro-screen');
         const loader = document.getElementById('loader');
-        if(loader) {
-            loader.style.opacity = '0';
-            setTimeout(() => { 
-                loader.remove();
-                initCursor();
-                initScrollAnimations();
-                initBackgroundAnimation(); 
-                initSystem(); // Start the hybrid system
-                
-                // Init Language
-                const savedLang = localStorage.getItem('zexith_lang') || 'es';
-                changeLanguage(savedLang);
-            }, 500);
+        
+        if (!hasSelectedLang) {
+            // First time visit: Show Lang Screen, Hide Loader
+            if(loader) loader.style.display = 'none';
+            langScreen.style.display = 'flex';
+        } else {
+            // Returning user: Hide Lang Screen, Show Loader
+            langScreen.style.display = 'none';
+            if(loader) loader.style.display = 'flex';
+            startMainExperience();
         }
-    }, 3500);
+    });
 
     // --- TRANSLATION DATA ---
     const translations = {
@@ -2613,7 +2744,7 @@
         }
 
         function updateClickables() {
-            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back, #submit-idea-btn, .idea-input, .lang-opt');
+            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back, #submit-idea-btn, .idea-input, .lang-opt, .intro-lang-btn');
             
             clickables.forEach(el => {
                 el.addEventListener('mouseenter', () => {
