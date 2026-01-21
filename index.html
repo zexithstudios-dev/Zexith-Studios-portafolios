@@ -24,6 +24,7 @@
     
     /* CURSOR LOGIC FOR DESKTOP ONLY */
     @media (hover: hover) and (pointer: fine) {
+        /* Default: Hide cursor everywhere */
         *{ 
             margin:0; 
             padding:0; 
@@ -36,8 +37,23 @@
             cursor: none !important;
         }
 
-        a, button, input, textarea, select, [role="button"], .clickable, .lang-opt, .intro-lang-btn {
-            cursor: none !important;
+        /* EXCEPTION: Show cursor on Language Intro Screen */
+        #language-intro-screen, #language-intro-screen * {
+            cursor: default !important;
+        }
+        
+        /* EXCEPTION: Allow pointer on buttons inside intro */
+        #language-intro-screen button, #language-intro-screen .intro-lang-btn {
+            cursor: pointer !important;
+        }
+
+        /* Toggle class to disable custom cursor globally via Settings */
+        body.system-cursor * {
+            cursor: auto !important;
+        }
+        
+        body.system-cursor .custom-cursor {
+            display: none !important;
         }
     }
 
@@ -228,55 +244,39 @@
         width: 100%;
     }
 
-    .nav-profile-btn {
-        padding: 8px 20px;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--accent);
-        border-radius: 8px;
+    /* SETTINGS BUTTON */
+    .settings-btn {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
         color: var(--accent);
-        cursor: pointer;
-        transition: 0.3s;
-        font-size: 0.9rem;
-        font-weight: 600;
-    }
-
-    .nav-profile-btn:hover {
-        background: var(--accent);
-        color: white;
-        box-shadow: 0 0 15px var(--accent);
-    }
-    
-    /* LANGUAGE SELECTOR */
-    .lang-selector {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-left: 10px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 5px 10px;
-        border-radius: 20px;
-        background: rgba(0,0,0,0.3);
-    }
-    
-    .lang-opt {
-        color: #666;
+        justify-content: center;
         cursor: pointer;
-        transition: 0.3s;
+        transition: all 0.3s ease;
+        margin-left: 20px;
+        position: relative;
+        overflow: hidden;
     }
-    
-    .lang-opt:hover {
-        color: #aaa;
+
+    .settings-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: var(--accent);
+        transition: transform 0.5s ease;
     }
-    
-    .lang-opt.active {
-        color: var(--accent);
-        text-shadow: 0 0 10px var(--accent);
+
+    .settings-btn:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: var(--accent);
+        box-shadow: 0 0 15px var(--accent);
     }
-    
-    .lang-separator {
-        color: #444;
+
+    .settings-btn:hover svg {
+        transform: rotate(90deg);
     }
 
     .hamburger {
@@ -1149,6 +1149,112 @@
 
     footer{ padding:50px; text-align:center; background: rgba(0,0,0,0.8); border-top:1px solid rgba(255,255,255,.1); color: #888; position: relative; z-index: 10; }
 
+    /* ---- SETTINGS MODAL STYLES ---- */
+    #settings-modal {
+        /* Inherits .modal-overlay, customized below */
+    }
+
+    .settings-content {
+        max-width: 500px;
+        padding: 40px;
+    }
+
+    .settings-group {
+        margin-bottom: 30px;
+    }
+
+    .settings-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        color: #888;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        display: block;
+        font-weight: 700;
+    }
+
+    .settings-options {
+        display: flex;
+        gap: 15px;
+    }
+
+    .settings-opt-btn {
+        flex: 1;
+        padding: 12px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid #333;
+        color: #aaa;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+
+    .settings-opt-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+
+    .settings-opt-btn.active {
+        background: var(--accent);
+        color: black; /* Or contrasting text */
+        border-color: var(--accent);
+        box-shadow: 0 0 15px var(--accent);
+    }
+    
+    /* Toggle Switch Style */
+    .setting-toggle-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255,255,255,0.05);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #333;
+    }
+    
+    .setting-toggle-text {
+        font-weight: 600;
+        color: #ddd;
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 50px;
+        height: 26px;
+    }
+
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #333;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--accent);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+
     /* ---- MOBILE RESPONSIVE ---- */
     @media (max-width: 768px) {
         #selection-screen {
@@ -1213,12 +1319,28 @@
             align-items: flex-start;
         }
         
-        .lang-selector {
+        /* Fixed: Settings button on mobile */
+        .settings-btn {
             margin-left: 0;
-            margin-top: 10px;
+            margin-top: 20px;
+            width: 100%;
+            border-radius: 8px;
+            justify-content: flex-start;
+            padding-left: 0;
+            border: none;
             opacity: 0;
             transform: translateX(50px);
+        }
+        
+        .nav-links.active .settings-btn {
             animation: slideInMenu 0.4s ease forwards 0.4s;
+        }
+        
+        .settings-btn span {
+            margin-left: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #aaa;
         }
 
         .nav-links.active { right: 0; }
@@ -1254,6 +1376,9 @@
         .profile-tabs, .profiles-container { max-width: 1200px; margin-left: auto; margin-right: auto; }
         #selection-screen { padding: 60px 40px; }
         .select-title { margin-top: 40px; }
+        
+        /* Hide text span in desktop settings btn */
+        .settings-btn span { display: none; }
     }
     
     @media (min-width: 1400px) {
@@ -1329,6 +1454,38 @@
     </div>
 </div>
 
+<!-- SETTINGS MODAL (NEW) -->
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content settings-content">
+        <span class="close-modal" onclick="closeSettings()">&times;</span>
+        <div class="modal-header" style="height: 100px;">
+            <div style="font-size: 3rem; color: #333;">⚙️</div>
+        </div>
+        <div class="modal-body">
+            <h2 class="modal-title" data-i18n="settings-title">CONFIGURACIÓN</h2>
+            
+            <div class="settings-group">
+                <span class="settings-label" data-i18n="settings-lang">IDIOMA / LANGUAGE</span>
+                <div class="settings-options">
+                    <button class="settings-opt-btn" onclick="window.changeLanguage('es')" data-lang-btn="es">ESPAÑOL</button>
+                    <button class="settings-opt-btn" onclick="window.changeLanguage('en')" data-lang-btn="en">ENGLISH</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <span class="settings-label" data-i18n="settings-cursor">CURSOR PERSONALIZADO</span>
+                <div class="setting-toggle-row">
+                    <span class="setting-toggle-text" data-i18n="settings-cursor-label">Activar Custom Cursor</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cursor-toggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="selection-screen">
     <div class="select-title" data-i18n="select-profile">Selecciona Perfil</div>
     
@@ -1379,11 +1536,7 @@
     <nav id="navbar">
         <div style="display:flex; align-items:center;">
             <div class="nav-logo">ZEXITH</div>
-            <div class="lang-selector">
-                <span class="lang-opt active" data-lang="es">ES</span>
-                <span class="lang-separator">|</span>
-                <span class="lang-opt" data-lang="en">EN</span>
-            </div>
+            <!-- REMOVED OLD LANG SELECTOR -->
         </div>
         <ul class="nav-links" id="navLinks">
             <li><a href="#home" data-i18n="nav-home">Inicio</a></li>
@@ -1393,6 +1546,12 @@
             <li><a href="#projects" data-i18n="nav-projects">Proyectos</a></li>
             <li><a href="#faq" data-i18n="nav-faq">FAQ</a></li>
             <div class="nav-profile-btn" onclick="returnToSelection()" data-i18n="nav-change-profile">← Cambiar Perfil</div>
+            
+            <!-- NEW SETTINGS BUTTON -->
+            <button class="settings-btn" onclick="openSettings()">
+                <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                <span data-i18n="nav-settings">Configuración</span>
+            </button>
         </ul>
         <div class="hamburger" id="hamburger">
             <span></span>
@@ -1891,6 +2050,11 @@
                     // Init Language
                     const savedLang = localStorage.getItem('zexith_lang') || 'es';
                     changeLanguage(savedLang);
+                    
+                    // Init Cursor State
+                    const customCursorEnabled = localStorage.getItem('zexith_cursor_enabled') !== 'false';
+                    document.getElementById('cursor-toggle').checked = customCursorEnabled;
+                    toggleCustomCursor(customCursorEnabled);
                 }, 500);
             }
         }, 3500);
@@ -1914,6 +2078,36 @@
         }
     });
 
+    // --- SETTINGS LOGIC ---
+    window.openSettings = function() {
+        document.getElementById('settings-modal').classList.add('active');
+    }
+    
+    window.closeSettings = function() {
+        document.getElementById('settings-modal').classList.remove('active');
+    }
+    
+    // Close settings if clicking outside
+    document.getElementById('settings-modal').addEventListener('click', (e) => {
+        if(e.target === document.getElementById('settings-modal')) {
+            closeSettings();
+        }
+    });
+    
+    function toggleCustomCursor(enabled) {
+        if(enabled) {
+            document.body.classList.remove('system-cursor');
+            localStorage.setItem('zexith_cursor_enabled', 'true');
+        } else {
+            document.body.classList.add('system-cursor');
+            localStorage.setItem('zexith_cursor_enabled', 'false');
+        }
+    }
+    
+    document.getElementById('cursor-toggle').addEventListener('change', (e) => {
+        toggleCustomCursor(e.target.checked);
+    });
+
     // --- TRANSLATION DATA ---
     const translations = {
         es: {
@@ -1929,6 +2123,7 @@
             "nav-tools": "Herramientas",
             "nav-projects": "Proyectos",
             "nav-faq": "FAQ",
+            "nav-settings": "Configuración",
             "nav-change-profile": "← Cambiar Perfil",
             "btn-view-projects": "Ver Proyectos",
             "section-team": "Nuestro Equipo",
@@ -1961,7 +2156,11 @@
             "status-dev": "EN DESARROLLO",
             "status-idea": "IDEA / CONCEPTO",
             "empty-projects-title": "No hay proyectos disponibles",
-            "empty-projects-desc": "De momento no hay trabajos para mostrar. Vuelve más tarde para ver nuevos proyectos."
+            "empty-projects-desc": "De momento no hay trabajos para mostrar. Vuelve más tarde para ver nuevos proyectos.",
+            "settings-title": "CONFIGURACIÓN",
+            "settings-lang": "IDIOMA / LANGUAGE",
+            "settings-cursor": "CURSOR PERSONALIZADO",
+            "settings-cursor-label": "Activar Custom Cursor"
         },
         en: {
             "select-profile": "Select Profile",
@@ -1976,6 +2175,7 @@
             "nav-tools": "Tools",
             "nav-projects": "Projects",
             "nav-faq": "FAQ",
+            "nav-settings": "Settings",
             "nav-change-profile": "← Change Profile",
             "btn-view-projects": "View Projects",
             "section-team": "Our Team",
@@ -2008,7 +2208,11 @@
             "status-dev": "IN DEVELOPMENT",
             "status-idea": "IDEA / CONCEPT",
             "empty-projects-title": "No projects available",
-            "empty-projects-desc": "There are currently no works to show. Check back later for new projects."
+            "empty-projects-desc": "There are currently no works to show. Check back later for new projects.",
+            "settings-title": "SETTINGS",
+            "settings-lang": "IDIOMA / LANGUAGE",
+            "settings-cursor": "CUSTOM CURSOR",
+            "settings-cursor-label": "Enable Custom Cursor"
         }
     };
 
@@ -2408,19 +2612,19 @@
     }
 
     // --- LANGUAGE LOGIC ---
-    function changeLanguage(lang) {
+    window.changeLanguage = function(lang) {
         currentLang = lang;
         localStorage.setItem('zexith_lang', lang);
         
         // Update HTML tag
         document.documentElement.lang = lang;
         
-        // Update Selector UI
-        document.querySelectorAll('.lang-opt').forEach(opt => {
-            if (opt.getAttribute('data-lang') === lang) {
-                opt.classList.add('active');
+        // Update Selector UI (NOW IN SETTINGS)
+        document.querySelectorAll('.settings-opt-btn').forEach(btn => {
+            if (btn.getAttribute('data-lang-btn') === lang) {
+                btn.classList.add('active');
             } else {
-                opt.classList.remove('active');
+                btn.classList.remove('active');
             }
         });
 
@@ -2443,14 +2647,6 @@
              enterSite(currentTheme, true); // True for "update only" mode
         }
     }
-    
-    // Listen for language clicks
-    document.querySelectorAll('.lang-opt').forEach(opt => {
-        opt.addEventListener('click', () => {
-            const lang = opt.getAttribute('data-lang');
-            changeLanguage(lang);
-        });
-    });
 
     // --- EXISTING LOGIC ---
 
@@ -2744,7 +2940,8 @@
         }
 
         function updateClickables() {
-            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back, #submit-idea-btn, .idea-input, .lang-opt, .intro-lang-btn');
+            // Updated list of clickables including settings elements
+            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back, #submit-idea-btn, .idea-input, .intro-lang-btn, .settings-btn, .settings-opt-btn, .toggle-slider');
             
             clickables.forEach(el => {
                 el.addEventListener('mouseenter', () => {
