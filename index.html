@@ -2979,10 +2979,16 @@
                             Global:</label>
                         <input type="text" id="owner-status-input" placeholder="Escribe un estado..."
                             style="width:100%; padding:10px; background:#222; border:1px solid var(--yellow); color:white; border-radius:8px;">
+                        <small style="color:#888; display:block; margin-top:5px;">💡 Tip: Los otros usuarios podrán
+                            validar tu estado</small>
                     </div>
                     <button onclick="saveOwnerStatus()"
                         style="width:100%; padding:10px; background:var(--yellow); color:black; font-weight:bold; cursor:pointer; border:none; border-radius:8px;">GUARDAR
                         ESTADO</button>
+
+                    <!-- 8A. REVIEWS SYSTEM FOR OWNER STATES -->
+                    <div id="status-reviews-container"
+                        style="margin-top:20px; padding-top:20px; border-top:1px solid var(--yellow);"></div>
                 </div>
             </div>
         </div>
@@ -3378,7 +3384,7 @@
             loadOwnerStatus();
         }
 
-        // 8. OWNER STATUS LOGIC
+        // 8. OWNER STATUS LOGIC WITH REVIEWS SYSTEM
         function loadOwnerStatus() {
             const status = localStorage.getItem('zexith_owner_status');
             if (status) {
@@ -3386,26 +3392,131 @@
                 if (input) input.value = status;
                 displayOwnerStatus(status);
             }
+            // Load reviews for the current status
+            if (isOwner) {
+                displayStatusReviews();
+            }
         }
 
         window.saveOwnerStatus = function () {
-            const status = document.getElementById('owner-status-input').value;
-            localStorage.setItem('zexith_owner_status', status);
-            displayOwnerStatus(status);
+            const statusText = document.getElementById('owner-status-input').value;
+            if (!statusText.trim()) {
+                alert('Por favor escribe un estado');
+                return;
+            }
+
+            // Save status with metadata (like ideas system)
+            const statusData = {
+                id: Date.now(),
+                text: statusText,
+                author: userDisplayName,
+                timestamp: new Date(),
+                validations: 0, // Like count
+                reviewers: [] // Who validated it
+            };
+
+            localStorage.setItem('zexith_owner_status', statusText);
+            localStorage.setItem('zexith_owner_status_data', JSON.stringify(statusData));
+
+            displayOwnerStatus(statusText);
+            displayStatusReviews(); // Refresh reviews
             alert("Estado actualizado / Status updated");
+        }
+
+        function displayStatusReviews() {
+            const container = document.getElementById('status-reviews-container');
+            if (!container || !isOwner) return;
+
+            const statusDataStr = localStorage.getItem('zexith_owner_status_data');
+            if (!statusDataStr) {
+                container.innerHTML = '<p style="color:#888; font-size:0.9rem;">📊 Sin validaciones aún</p>';
+                return;
+            }
+
+            const statusData = JSON.parse(statusDataStr);
+            const reviewersText = statusData.reviewers.length > 0
+                ? `Validado por: ${statusData.reviewers.join(', ')}`
+                : 'Sin validaciones aún';
+
+            container.innerHTML = `
+                <h4 style="color:var(--yellow); margin-bottom:10px;">📊 Validaciones del Estado</h4>
+                <div style="background:rgba(255,215,0,0.1); padding:10px; border-radius:8px; border-left:3px solid var(--yellow);">
+                    <p style="color:#ccc; margin:5px 0;"><strong>${statusData.validations}</strong> validaciones</p>
+                    <p style="color:#888; font-size:0.85rem; margin:5px 0;">${reviewersText}</p>
+                </div>
+            `;
         }
 
         function displayOwnerStatus(text) {
             const container = document.getElementById('hero-status-container');
             if (container) {
                 if (text && text.trim()) {
-                    container.innerHTML = `<div class="owner-status-display">📍 ${text}</div>`;
+                    // Get status data for reviews
+                    const statusDataStr = localStorage.getItem('zexith_owner_status_data');
+                    const statusData = statusDataStr ? JSON.parse(statusDataStr) : null;
+                    const validations = statusData ? statusData.validations : 0;
+
+                    // Create validation button only for non-owners
+                    const validationBtn = !isOwner ? `
+                        <button onclick="validateOwnerStatus()" 
+                            style="margin-left:10px; padding:6px 12px; background:var(--accent); color:black; 
+                                   font-weight:bold; cursor:pointer; border:none; border-radius:6px; font-size:0.8rem;">
+                            ✓ Validar
+                        </button>
+                    ` : '';
+
+                    container.innerHTML = `
+                        <div class="owner-status-display" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                            <span>📍 ${text}</span>
+                            <span style="font-size:0.8rem; color:#888;">(${validations} validaciones)</span>
+                            ${validationBtn}
+                        </div>
+                    `;
                     container.style.display = 'block';
                 } else {
                     container.innerHTML = '';
                     container.style.display = 'none';
                 }
             }
+        }
+
+        // 8A. OWNER STATUS VALIDATION (REVIEW SYSTEM)
+        window.validateOwnerStatus = function () {
+            if (!userDisplayName || userDisplayName === 'Usuario Anonimo') {
+                alert('Debes iniciar sesión para validar un estado');
+                return;
+            }
+
+            // Prevent self-validation
+            const statusDataStr = localStorage.getItem('zexith_owner_status_data');
+            if (!statusDataStr) return;
+
+            const statusData = JSON.parse(statusDataStr);
+            if (statusData.author === userDisplayName) {
+                alert('No puedes validar tu propio estado');
+                return;
+            }
+
+            // Check if already validated
+            if (statusData.reviewers && statusData.reviewers.includes(userDisplayName)) {
+                alert('Ya validaste este estado');
+                return;
+            }
+
+            // Add validation
+            statusData.validations = (statusData.validations || 0) + 1;
+            if (!statusData.reviewers) statusData.reviewers = [];
+            statusData.reviewers.push(userDisplayName);
+
+            localStorage.setItem('zexith_owner_status_data', JSON.stringify(statusData));
+
+            // Broadcast to other tabs
+            const versionId = Date.now();
+            localStorage.setItem('zexith_version_id', versionId);
+
+            displayOwnerStatus(localStorage.getItem('zexith_owner_status'));
+            if (isOwner) displayStatusReviews();
+            alert('✓ Estado validado / Status validated');
         }
 
         window.logoutUser = function () {
@@ -3769,11 +3880,38 @@
             init3DCards();
         }
 
-        // 5. LIKE LOGIC - With spam protection
+        // 5. LIKE LOGIC - With spam protection + no self-likes
         const likeTimestamps = {}; // Track last like time per idea
         const LIKE_COOLDOWN = 1000; // 1 second cooldown between likes
 
         window.toggleLike = async function (docId) {
+            // Find the idea to check if it's the user's own idea
+            let idea = null;
+            if (useFirebase) {
+                // Firebase mode
+                try {
+                    const colRef = getIdeasCollection();
+                    const docRef = doc(db, colRef.path, docId);
+                    const docSnap = await getDoc(docRef);
+                    idea = docSnap.data();
+                } catch (e) {
+                    console.error('Error fetching idea:', e);
+                    return;
+                }
+            } else {
+                // Local mode
+                idea = savedIdeas.find(i => i.id === docId);
+            }
+
+            if (!idea) return;
+
+            // Prevent self-likes
+            if (idea.username === userDisplayName) {
+                console.warn('❌ No puedes dar like a tus propios comentarios');
+                alert('No puedes dar like a tus propios comentarios');
+                return;
+            }
+
             const now = Date.now();
             const lastLike = likeTimestamps[docId] || 0;
 
