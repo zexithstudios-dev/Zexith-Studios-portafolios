@@ -3038,7 +3038,7 @@
     </div>
 
     <!-- STALE VERSION MODAL (NEW) -->
-    <div id="stale-version-modal" class="modal-overlay" style="display:none; z-index:999999;">
+    <div id="stale-version-modal" class="modal-overlay" style="z-index:999999;">
         <div class="modal-content"
             style="max-width:450px; background:linear-gradient(145deg, #220000, #000); border-color:var(--red);">
             <div class="modal-body" style="text-align:center;">
@@ -3397,10 +3397,14 @@
 
         function displayOwnerStatus(text) {
             const container = document.getElementById('hero-status-container');
-            if (text) {
-                container.innerHTML = `<div class="owner-status-display">${text}</div>`;
-            } else {
-                container.innerHTML = '';
+            if (container) {
+                if (text && text.trim()) {
+                    container.innerHTML = `<div class="owner-status-display">📍 ${text}</div>`;
+                    container.style.display = 'block';
+                } else {
+                    container.innerHTML = '';
+                    container.style.display = 'none';
+                }
             }
         }
 
@@ -3502,8 +3506,10 @@
                 // Show stale modal
                 const modal = document.getElementById('stale-version-modal');
                 if (modal && document.getElementById('main-site').classList.contains('visible')) {
-                    modal.style.display = 'flex';
-                    setTimeout(() => { modal.classList.add('active'); }, 10);
+                    modal.classList.add('active');
+                    setTimeout(() => {
+                        console.log('🔔 Modal de página deprecada mostrado');
+                    }, 100);
                 }
             }
         });
@@ -3763,8 +3769,23 @@
             init3DCards();
         }
 
-        // 5. LIKE LOGIC
+        // 5. LIKE LOGIC - With spam protection
+        const likeTimestamps = {}; // Track last like time per idea
+        const LIKE_COOLDOWN = 1000; // 1 second cooldown between likes
+
         window.toggleLike = async function (docId) {
+            const now = Date.now();
+            const lastLike = likeTimestamps[docId] || 0;
+
+            // Check if user is trying to spam (clicking faster than cooldown)
+            if (now - lastLike < LIKE_COOLDOWN) {
+                console.warn('⏱️ Espera 1 segundo antes de dar like de nuevo');
+                return; // Ignore spam clicks
+            }
+
+            // Update timestamp
+            likeTimestamps[docId] = now;
+
             if (useFirebase) {
                 const colRef = getIdeasCollection();
                 const docRef = doc(db, colRef.path, docId);
