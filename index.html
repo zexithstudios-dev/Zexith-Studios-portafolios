@@ -166,7 +166,7 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    /* 9. GRUPO DE MARCA Y AVATAR (NUEVO) */
+    /* 9. GRUPO DE MARCA Y AVATAR */
     .nav-brand-group {
         display: flex;
         align-items: center;
@@ -188,14 +188,29 @@
         transition: all 0.3s ease;
         box-shadow: 0 0 15px rgba(0,0,0,0.5);
         cursor: default;
+        position: relative;
+        overflow: hidden; /* For custom image */
+    }
+    
+    .nav-user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .nav-user-avatar:hover {
-        box-shadow: 0 0 20px var(--accent);
-        transform: scale(1.1);
-        background: var(--accent);
-        color: #000;
+    /* Connection Status Dot */
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+        border: 2px solid #000;
+        z-index: 2;
     }
+    .status-dot.connected { background-color: #00ff00; box-shadow: 0 0 5px #00ff00; }
+    .status-dot.disconnected { background-color: #ffaa00; box-shadow: 0 0 5px #ffaa00; }
 
     .nav-logo {
         font-size: 1.5rem;
@@ -274,10 +289,10 @@
         width: 100%;
     }
 
-    /* 3. MEJORA DEL BOTÓN DE CAMBIAR PERFIL */
+    /* 3. BOTÓN DE CAMBIAR PERFIL (DESKTOP) */
     .nav-profile-btn {
         background: var(--accent);
-        color: #000 !important; /* Texto negro para contraste */
+        color: #000 !important;
         padding: 8px 20px !important;
         border-radius: 6px;
         font-weight: 800 !important;
@@ -297,7 +312,7 @@
         filter: brightness(1.2);
     }
 
-    /* 2. BOTÓN SETTINGS (SIN ANIMACIÓN POR DEFECTO) */
+    /* 2. BOTÓN SETTINGS */
     .settings-btn {
         background: transparent;
         border: 1px solid rgba(255,255,255,0.1);
@@ -319,7 +334,7 @@
         width: 20px;
         height: 20px;
         fill: var(--accent);
-        transition: transform 0.4s ease; /* Solo transición suave */
+        transition: transform 0.4s ease;
     }
 
     .settings-btn:hover {
@@ -329,7 +344,7 @@
     }
 
     .settings-btn:hover svg {
-        transform: rotate(90deg); /* SOLO ROTA EN HOVER */
+        transform: rotate(90deg);
     }
 
     .hamburger {
@@ -383,7 +398,6 @@
         position: relative;
     }
 
-    /* Subtle Overlay for readability on selection screen */
     #selection-screen::before {
         content: '';
         position: absolute;
@@ -1254,6 +1268,8 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 24px;
         box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+        overflow-y: auto; /* Fix for overflow content */
+        max-height: 85vh;
     }
     
     #settings-modal .modal-header {
@@ -1347,6 +1363,36 @@
     }
     .owner-zone h3 { color: #ffd700; margin-bottom: 15px; font-size: 0.9rem; letter-spacing: 2px; }
 
+    /* PROFILE SETTINGS INPUTS (NEW) */
+    .profile-setting-input {
+        width: 100%;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        padding: 12px;
+        color: white;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .profile-setting-input:focus {
+        border-color: var(--accent);
+        outline: none;
+    }
+    
+    .profile-save-btn {
+        width: 100%;
+        padding: 12px;
+        background: var(--accent);
+        color: #000;
+        font-weight: 800;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
     /* Toggle Switch Style Refined */
     .setting-toggle-row {
         display: flex;
@@ -1410,6 +1456,44 @@
         background-color: var(--accent);
         box-shadow: 0 0 10px var(--accent);
     }
+    
+    /* OBSOLETE WARNING POPUP (NEW) */
+    #obsolete-popup {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: rgba(20, 0, 0, 0.95);
+        border: 2px solid var(--red);
+        padding: 20px;
+        border-radius: 12px;
+        z-index: 100000;
+        display: none;
+        flex-direction: column;
+        gap: 15px;
+        width: 300px;
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        animation: slideUpObsolete 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    
+    @keyframes slideUpObsolete {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .obsolete-title { color: var(--red); font-weight: 800; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+    .obsolete-desc { color: #ccc; font-size: 0.85rem; line-height: 1.4; }
+    .reload-btn {
+        background: var(--red);
+        color: white;
+        border: none;
+        padding: 8px;
+        border-radius: 6px;
+        font-weight: 700;
+        cursor: pointer;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+    .reload-btn:hover { background: #ff4444; }
 
     /* ---- MOBILE RESPONSIVE ---- */
     @media (max-width: 768px) {
@@ -1455,6 +1539,16 @@
             height: auto;
             min-height: 300px;
             margin-bottom: 20px;
+        }
+        
+        /* FIX FOR SANTANA CARD ON MOBILE */
+        /* Disable 3D effect on mobile to improve click reliability */
+        .card-3d {
+             transform: none !important;
+             transition: transform 0.2s ease !important;
+        }
+        .profile-card:active {
+            transform: scale(0.95) !important;
         }
 
         .nav-links {
@@ -1508,12 +1602,25 @@
         .nav-links.active a:nth-child(4) { animation-delay: 0.25s; }
         .nav-links.active a:nth-child(5) { animation-delay: 0.3s; }
         
+        /* FIX 1: CHANGE PROFILE BUTTON IN MOBILE MENU */
+        .nav-profile-btn { 
+            display: inline-block !important; /* Force display */
+            width: 100%;
+            text-align: center;
+            margin-top: auto; /* Push to bottom of menu area if possible, or just below links */
+            padding: 15px !important;
+            font-size: 1rem !important;
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        
+        .nav-links.active .nav-profile-btn {
+             animation: slideInMenu 0.4s ease forwards 0.5s;
+        }
+        
         @keyframes slideInMenu { to { opacity: 1; transform: translateX(0); } }
 
         .hamburger { display: flex; }
-        
-        /* 4. BLOQUEO PERFIL EN MÓVIL */
-        .nav-profile-btn { display: none !important; }
 
         .section-title { font-size: 2rem; }
         .team-grid { gap: 20px; }
@@ -1527,6 +1634,11 @@
         
         /* Force remove cursor elements on mobile */
         .custom-cursor { display: none !important; }
+        
+        /* Obsolete Popup Mobile */
+        #obsolete-popup {
+            left: 20px; right: 20px; bottom: 20px; width: auto;
+        }
     }
     
     @media (min-width: 769px) {
@@ -1536,6 +1648,9 @@
         
         /* Hide text span in desktop settings btn */
         .settings-btn span { display: none; }
+        
+        /* Hide the mobile-style profile btn inside nav-links on desktop, keeping the one outside */
+        .nav-links .nav-profile-btn { display: none !important; }
     }
     
     @media (min-width: 1400px) {
@@ -1565,6 +1680,17 @@
 <body>
 
 <canvas id="bg-canvas"></canvas>
+
+<!-- 3. OBSOLETE PAGE WARNING -->
+<div id="obsolete-popup">
+    <div class="obsolete-title">
+        <span>⚠ CONEXIÓN INTERRUMPIDA</span>
+    </div>
+    <div class="obsolete-desc">
+        La página podría estar obsoleta o desconectada. Por favor, recarga para sincronizar datos recientes.
+    </div>
+    <button class="reload-btn" onclick="window.location.reload()">RECARGAR PÁGINA</button>
+</div>
 
 <!-- LANGUAGE INTRO SCREEN (NEW) -->
 <div id="language-intro-screen">
@@ -1655,6 +1781,18 @@
                 </div>
             </div>
 
+            <!-- 2. CUSTOM PROFILE SETTINGS -->
+            <div class="settings-group">
+                <span class="settings-label">MI PERFIL (CUSTOM)</span>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <input type="text" id="custom-profile-name" class="profile-setting-input" placeholder="Nombre (Display Name)">
+                    <input type="text" id="custom-profile-role" class="profile-setting-input" placeholder="Etiqueta (Ej. Pro Owner)">
+                    <input type="text" id="custom-profile-pic" class="profile-setting-input" placeholder="URL Foto Perfil (https://...)">
+                    <button class="profile-save-btn" onclick="saveCustomProfile()">GUARDAR CAMBIOS</button>
+                    <p style="font-size:0.7rem; color:#666; margin-top:10px;">*Los cambios solo son visibles para ti localmente por ahora.</p>
+                </div>
+            </div>
+
             <!-- 7. ZONA OWNER -->
             <div class="owner-zone" id="owner-settings">
                 <h3>★ ZONA OWNER</h3>
@@ -1678,17 +1816,18 @@
     </div>
 
     <div class="profiles-container">
-        <div class="profile-card scripter active" id="card-santana">
+        <!-- 5. ARREGLO SANTANA MOVIL (ID and click handling) -->
+        <div class="profile-card scripter active" id="card-santana" onclick="enterSite('santana')">
             <div class="profile-avatar" style="border: 2px solid #ffffff; color:#ffffff">S</div>
             <h3>Santana</h3>
             <span>Scripter</span>
         </div>
-        <div class="profile-card ui" id="card-william">
+        <div class="profile-card ui" id="card-william" onclick="enterSite('william')">
             <div class="profile-avatar" style="border: 2px solid var(--red); color:var(--red)">W</div>
             <h3>William</h3>
             <span>UI Designer</span>
         </div>
-        <div class="profile-card builder" id="card-builder">
+        <div class="profile-card builder" id="card-builder" onclick="triggerBuilder()">
             <div class="profile-avatar" style="border: 2px solid #ffd700; color:#ffd700">B</div>
             <h3>Builder</h3>
             <span data-i18n="role-builder">Constructor</span>
@@ -1717,7 +1856,12 @@
 
     <nav id="navbar">
         <div class="nav-brand-group">
-            <div class="nav-user-avatar" id="nav-user-initial">G</div>
+            <div class="nav-user-avatar" id="nav-user-initial">
+                <!-- Image or Initial goes here -->
+                <span>G</span>
+                <!-- 4. INDICADOR DE CONEXIÓN -->
+                <div class="status-dot disconnected" id="connection-status-dot" title="Estado de Conexión"></div>
+            </div>
             <div class="nav-logo">ZEXITH</div>
         </div>
         <ul class="nav-links" id="navLinks">
@@ -1727,7 +1871,12 @@
             <li><a href="#tools" data-i18n="nav-tools">Herramientas</a></li>
             <li><a href="#projects" data-i18n="nav-projects">Proyectos</a></li>
             <li><a href="#faq" data-i18n="nav-faq">FAQ</a></li>
-            <!-- 3. & 4. BOTÓN PERFIL MEJORADO Y OCULTO EN MÓVIL -->
+            
+            <!-- 3. BOTÓN PERFIL MEJORADO (Desktop Outside, Mobile Inside) -->
+            <!-- DESKTOP VERSION -->
+            <button class="nav-profile-btn desktop-only" onclick="returnToSelection()" data-i18n="nav-change-profile" style="margin-left:20px;">Cambiar Perfil</button>
+            
+            <!-- MOBILE VERSION (Inserted into nav links flow) -->
             <button class="nav-profile-btn" onclick="returnToSelection()" data-i18n="nav-change-profile">Cambiar Perfil</button>
             
             <!-- NEW SETTINGS BUTTON -->
@@ -1856,7 +2005,7 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- CONFIGURACIÓN DE FIREBASE (YA INTEGRADA) ---
+    // --- CONFIGURACIÓN DE FIREBASE ---
     const USER_FIREBASE_CONFIG = {
         apiKey: "AIzaSyBsiy12zMwHjiN2Bt9p6THBJgysw4JYliI",
         authDomain: "zexith-studios-62367.firebaseapp.com",
@@ -1875,6 +2024,7 @@
     let isOwner = false;
     let ideaToDeleteId = null;
     let isRegistering = false; // Toggle for Login/Register mode
+    let obsoleteTimer = null; // 3. OBSOLETE TIMER
 
     // 10. CREDENTIALS SYSTEM
     const CREDENTIALS = {
@@ -1885,6 +2035,7 @@
     async function initSystem() {
         // Check for saved username first
         checkUsername();
+        resetObsoleteTimer(); // Start 3. timer
 
         try {
             let config = null;
@@ -1906,6 +2057,9 @@
                 db = getFirestore(app);
                 useFirebase = true;
                 
+                // 4. Update Status Dot to Green
+                updateConnectionStatus(true);
+                
                 await initFirebaseAuth();
             } else {
                 throw new Error("No Firebase config found");
@@ -1914,9 +2068,36 @@
         } catch (e) {
             console.log("Modo Local Activado (GitHub/Offline):", e);
             useFirebase = false;
+            // 4. Update Status Dot to Red/Orange
+            updateConnectionStatus(false);
             initLocalMode();
         }
     }
+    
+    // 4. VISUAL INDICATOR
+    function updateConnectionStatus(isConnected) {
+        const dot = document.getElementById('connection-status-dot');
+        if (isConnected) {
+            dot.classList.remove('disconnected');
+            dot.classList.add('connected');
+        } else {
+            dot.classList.remove('connected');
+            dot.classList.add('disconnected');
+        }
+    }
+    
+    // 3. OBSOLETE / RELOAD LOGIC
+    function resetObsoleteTimer() {
+        if(obsoleteTimer) clearTimeout(obsoleteTimer);
+        // Set timer for 60 minutes of inactivity to suggest reload
+        obsoleteTimer = setTimeout(() => {
+            document.getElementById('obsolete-popup').style.display = 'flex';
+        }, 3600000); // 1 Hour
+    }
+    
+    // Reset timer on interaction
+    document.addEventListener('click', resetObsoleteTimer);
+    document.addEventListener('keydown', resetObsoleteTimer);
 
     function checkUsername() {
         const storedName = localStorage.getItem('zexith_username');
@@ -1934,21 +2115,39 @@
 
     function updateUserDisplay() {
         const displayEl = document.getElementById('current-user-name');
+        
+        // 2. LOAD CUSTOM PROFILE DATA
+        const customProfile = JSON.parse(localStorage.getItem('zexith_custom_profile') || '{}');
+        const displayName = customProfile.name || userDisplayName;
+        const displayRole = customProfile.role || (isOwner ? "OWNER" : "");
+        
         if(displayEl) {
-            displayEl.textContent = userDisplayName;
+            displayEl.textContent = displayName;
             // Add owner badge styling if needed locally in the display
-            if(isOwner) {
+            if(isOwner || customProfile.role) {
                 displayEl.style.color = '#ffd700';
-                displayEl.innerHTML += ' <span style="font-size:0.5em; vertical-align:middle; border:1px solid #ffd700; padding:1px 4px; border-radius:4px;">OWNER</span>';
+                displayEl.innerHTML += ` <span class="owner-badge">${displayRole}</span>`;
             } else {
                 displayEl.style.color = 'white';
             }
         }
         
         // 9. UPDATE NAV AVATAR
-        const initial = userDisplayName ? userDisplayName.charAt(0).toUpperCase() : 'G';
+        // 2. SUPPORT CUSTOM PFP
         const avatarEl = document.getElementById('nav-user-initial');
-        if(avatarEl) avatarEl.textContent = initial;
+        if(avatarEl) {
+            if (customProfile.pic && customProfile.pic.startsWith('http')) {
+                // Remove existing span, keep dot
+                const dot = avatarEl.querySelector('.status-dot');
+                avatarEl.innerHTML = `<img src="${customProfile.pic}" alt="User">`;
+                if(dot) avatarEl.appendChild(dot);
+            } else {
+                const initial = displayName ? displayName.charAt(0).toUpperCase() : 'G';
+                const dot = avatarEl.querySelector('.status-dot');
+                avatarEl.innerHTML = `<span>${initial}</span>`;
+                if(dot) avatarEl.appendChild(dot);
+            }
+        }
 
         // 7. SHOW OWNER SETTINGS IF APPLICABLE
         const ownerSettings = document.getElementById('owner-settings');
@@ -1956,8 +2155,32 @@
             ownerSettings.style.display = isOwner ? 'block' : 'none';
         }
         
+        // Populate Custom Settings Inputs
+        document.getElementById('custom-profile-name').value = customProfile.name || '';
+        document.getElementById('custom-profile-role').value = customProfile.role || '';
+        document.getElementById('custom-profile-pic').value = customProfile.pic || '';
+        
         // ALWAYS LOAD STATUS
         loadOwnerStatus();
+    }
+    
+    // 2. SAVE CUSTOM PROFILE
+    window.saveCustomProfile = function() {
+        const name = document.getElementById('custom-profile-name').value.trim();
+        const role = document.getElementById('custom-profile-role').value.trim();
+        const pic = document.getElementById('custom-profile-pic').value.trim();
+        
+        const profile = { name, role, pic };
+        localStorage.setItem('zexith_custom_profile', JSON.stringify(profile));
+        
+        // If name changed, update main username too for logic
+        if(name) {
+            userDisplayName = name;
+            localStorage.setItem('zexith_username', name);
+        }
+        
+        updateUserDisplay();
+        alert("Perfil actualizado localmente / Profile updated locally");
     }
 
     // 8. OWNER STATUS LOGIC
@@ -1989,6 +2212,7 @@
     window.logoutUser = function() {
         localStorage.removeItem('zexith_username');
         localStorage.removeItem('zexith_role');
+        localStorage.removeItem('zexith_custom_profile'); // Reset custom profile on logout
         userDisplayName = "Usuario Anonimo";
         isOwner = false;
         document.getElementById('username-input').value = "";
@@ -2090,8 +2314,6 @@
                  // Trigger re-fetch logic if needed, but current snapshot listener handles data.
                  // We need to re-render to update the delete buttons visibility
                  const colRef = getIdeasCollection(); 
-                 // Force re-render not easily possible with snapshot unless we store last data.
-                 // Reload is acceptable here for simplicity.
                  location.reload();
              }
         } else {
@@ -2115,6 +2337,9 @@
             });
         } catch (e) {
             console.error("Auth failed:", e);
+            // Fallback to local
+            updateConnectionStatus(false);
+            initLocalMode();
         }
     }
 
@@ -2165,6 +2390,7 @@
             renderIdeas(ideas);
         }, (error) => {
             console.error("Error fetching ideas:", error);
+            updateConnectionStatus(false); // Flag disconnected
         });
     }
 
@@ -2281,7 +2507,6 @@
             textEl.style.color = 'var(--accent)';
             btn.textContent = "Original";
             textEl.classList.add('translated');
-            // In a real app, here we would call Google Translate API
         }
     }
 
@@ -2332,6 +2557,10 @@
         
         if (title && desc && currentUser) {
             
+            // 2. USE CUSTOM NAME IF SET
+            const customProfile = JSON.parse(localStorage.getItem('zexith_custom_profile') || '{}');
+            const postName = customProfile.name || userDisplayName;
+
             if (useFirebase) {
                 try {
                     const colRef = getIdeasCollection();
@@ -2340,7 +2569,7 @@
                         desc: desc,
                         likes: 0,
                         userId: currentUser.uid,
-                        username: userDisplayName, // Save Username
+                        username: postName, 
                         timestamp: serverTimestamp()
                     });
                 } catch (e) {
@@ -2354,7 +2583,7 @@
                     desc: desc,
                     likes: 0,
                     userId: currentUser.uid,
-                    username: userDisplayName, // Save Username
+                    username: postName,
                     date: new Date().toISOString()
                 };
                 savedIdeas.unshift(newIdea); // Add to top
@@ -2986,18 +3215,11 @@
         });
     });
 
-    document.getElementById('card-william').addEventListener('click', () => {
-        enterSite('william');
-    });
-
-    document.getElementById('card-santana').addEventListener('click', () => {
-        enterSite('santana');
-    });
-
-    document.getElementById('card-builder').addEventListener('click', () => {
+    // NOTE: Clicks handled by onclick in HTML now for reliability on mobile
+    window.triggerBuilder = function() {
         updateThemeColor('builder'); 
         showComingSoon();
-    });
+    }
 
     function showComingSoon() {
         const comingSoon = document.getElementById('comingSoonScreen');
@@ -3037,10 +3259,14 @@
             // 6. Reset navbar state
             document.getElementById('navbar').classList.remove('scrolled');
             
+            // 7. CLOSE MOBILE MENU IF OPEN
+            document.getElementById('hamburger').classList.remove('active');
+            document.getElementById('navLinks').classList.remove('active');
+            
         }, 500); 
     }
 
-    function enterSite(profile, updateOnly = false) {
+    window.enterSite = function(profile, updateOnly = false) {
         currentTheme = profile;
         const profileData = data[profile];
         
@@ -3240,223 +3466,4 @@
 
             let mouseX = 0, mouseY = 0;
 
-            document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-                cursor.style.left = mouseX + 'px';
-                cursor.style.top = mouseY + 'px';
-            });
-            
-            cursorInitialized = true;
-        }
-
-        function updateClickables() {
-            // Updated list of clickables including settings elements
-            const clickables = document.querySelectorAll('a, button, .tab-btn, .profile-card, .ui-card, .faq-question, [role="button"], .btn, .filter-btn, .hamburger, .nav-links a, .close-modal, .nav-profile-btn, #card-william, #card-santana, #card-builder, .coming-soon-back, #submit-idea-btn, .idea-input, .intro-lang-btn, .settings-btn, .settings-opt-btn, .toggle-slider');
-            
-            clickables.forEach(el => {
-                el.addEventListener('mouseenter', () => {
-                    cursor.classList.add('pointer');
-                    cursor.classList.remove('hovering');
-                });
-                el.addEventListener('mouseleave', () => {
-                    cursor.classList.remove('pointer');
-                    cursor.classList.remove('hovering');
-                });
-            });
-        }
-
-        updateClickables();
-        setTimeout(updateClickables, 1500); // Re-run shortly after DOM updates
-    }
-
-    function updateScrollProgress() {
-        const scrollProgress = document.querySelector('.scroll-progress');
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollPercent = (scrollTop / docHeight) * 100;
-        scrollProgress.style.width = scrollPercent + '%';
-    }
-
-    window.addEventListener('scroll', updateScrollProgress);
-
-    function initScrollAnimations() {
-        const reveals = document.querySelectorAll('.reveal');
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                }
-            });
-        }, { threshold: 0.1 });
-
-        reveals.forEach(reveal => observer.observe(reveal));
-    }
-
-    function init3DCards() {
-        const cards = document.querySelectorAll('.ui-card, .team-member, .skill-category, .ideas-form-card, .idea-card');
-        
-        cards.forEach(card => {
-            card.classList.add('card-3d');
-            
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -10;
-                const rotateY = ((x - centerX) / centerX) * 10;
-                
-                card.style.setProperty('--rotate-x', rotateX + 'deg');
-                card.style.setProperty('--rotate-y', rotateY + 'deg');
-            });
-            
-            card.addEventListener('mouseleave', () => {
-                card.style.setProperty('--rotate-x', '0deg');
-                card.style.setProperty('--rotate-y', '0deg');
-            });
-        });
-    }
-
-    window.addEventListener('scroll', () => {
-        const navbar = document.getElementById('navbar');
-        const links = document.querySelectorAll('.nav-links a');
-        
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-
-        const sections = document.querySelectorAll('section');
-        let current = '';
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.scrollY >= sectionTop - 100) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        links.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${current}`) {
-                link.classList.add('active');
-            }
-        });
-    });
-
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('navLinks');
-
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('active');
-    });
-
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-        });
-    });
-
-    document.getElementById('category-filters').addEventListener('click', (e) => {
-        if (e.target.classList.contains('filter-btn')) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-
-            const filter = e.target.getAttribute('data-filter');
-            const projectsContainer = document.getElementById('projects-container');
-            const ideasInterface = document.getElementById('ideas-interface');
-            const cards = document.querySelectorAll('.ui-card');
-
-            if (filter === 'idea') {
-                // Show Ideas Interface
-                projectsContainer.style.display = 'none';
-                ideasInterface.style.display = 'flex';
-            } else {
-                // Show Projects Grid
-                projectsContainer.style.display = 'grid';
-                ideasInterface.style.display = 'none';
-                
-                cards.forEach(card => {
-                    if (filter === 'all') {
-                        card.classList.remove('hidden');
-                    } else {
-                        const status = card.getAttribute('data-status');
-                        if (status === filter) {
-                            card.classList.remove('hidden');
-                        } else {
-                            card.classList.add('hidden');
-                        }
-                    }
-                });
-            }
-        }
-    });
-
-    document.getElementById('faq-container').addEventListener('click', (e) => {
-        const question = e.target.closest('.faq-question');
-        if (question) {
-            const faqItem = question.parentElement;
-            faqItem.classList.toggle('active');
-        }
-    });
-
-    const modal = document.getElementById('projectModal');
-    const closeBtn = document.querySelector('.close-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDesc = document.getElementById('modal-desc');
-    const modalTags = document.getElementById('modal-tags');
-
-    document.getElementById('projects-container').addEventListener('click', function(e) {
-        const card = e.target.closest('.ui-card');
-        if (card) {
-            const modalHeaderIcon = document.querySelector('.modal-header-icon');
-            const modalHeader = document.querySelector('.modal-header');
-            
-            modalTitle.textContent = card.getAttribute('data-title');
-            modalDesc.textContent = card.getAttribute('data-desc');
-            modalTags.innerHTML = card.querySelector('.ui-tags').innerHTML;
-            
-            const imageElement = card.querySelector('.ui-preview-image');
-            const existingImage = modalHeader.querySelector('.modal-header-image');
-            
-            if (existingImage) existingImage.remove();
-            
-            if (imageElement && imageElement.src) {
-                const modalImage = document.createElement('img');
-                modalImage.src = imageElement.src;
-                modalImage.className = 'modal-header-image';
-                modalImage.alt = card.getAttribute('data-title');
-                modalHeader.appendChild(modalImage);
-                modalHeaderIcon.style.display = 'none';
-            } else {
-                modalHeaderIcon.style.display = 'block';
-            }
-            
-            modal.style.display = 'flex';
-            setTimeout(() => { modal.classList.add('active'); }, 10);
-        }
-    });
-
-    function closeModal() {
-        modal.classList.remove('active');
-        setTimeout(() => { modal.style.display = 'none'; }, 400);
-    }
-    
-    closeBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    
-    // Assign global functions
-    window.returnToSelection = returnToSelection;
-</script>
-
-</body>
-</html>
+            document.addEventListener('mousemove', (
