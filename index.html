@@ -1717,9 +1717,8 @@
 
     <nav id="navbar">
         <div class="nav-brand-group">
-            <div class="nav-logo">ZEXITH</div>
-            <!-- 9. PERFIL ARRIBA IZQUIERDA -->
             <div class="nav-user-avatar" id="nav-user-initial">G</div>
+            <div class="nav-logo">ZEXITH</div>
         </div>
         <ul class="nav-links" id="navLinks">
             <li><a href="#home" data-i18n="nav-home">Inicio</a></li>
@@ -1955,8 +1954,10 @@
         const ownerSettings = document.getElementById('owner-settings');
         if(ownerSettings) {
             ownerSettings.style.display = isOwner ? 'block' : 'none';
-            if(isOwner) loadOwnerStatus();
         }
+        
+        // ALWAYS LOAD STATUS
+        loadOwnerStatus();
     }
 
     // 8. OWNER STATUS LOGIC
@@ -2710,49 +2711,6 @@
                 tools: [
                     { name: "VS Code", desc: "Rojo & Copilot", img: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M23.1,13.6l-20.7,16L2.3,71.2l20.8,15.2l48.6-43.2L23.1,13.6z M19.4,75.9L9.1,68V32.8l10.3-7.9V75.9z"/><path fill="#ffffff" d="M74.8,11.2l-26.6,22L90.7,68l7-5.4V38.2L74.8,11.2z"/></svg>` },
                     { name: "GitHub", desc: "Control de versiones", img: `<svg viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></svg>` },
-                    { name: "Roblox Studio", desc: "Testing & Deploy", img: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="22" width="56" height="56" rx="8" transform="rotate(-15 50 50)" fill="#00A2FF"/><rect x="38" y="38" width="24" height="24" rx="3" transform="rotate(-15 50 50)" fill="#0e0e0e"/></svg>` }
-                ],
-                projects: [],
-                faqs: [
-                    { q: "¿Qué lenguaje de programación usas?", a: "Trabajo principalmente con Luau (Lua optimizado para Roblox), además de TypeScript con Rojo para proyectos más grandes." },
-                    { q: "¿Cómo garantizas la seguridad del código?", a: "Implemento validaciones server-side, sanitización de inputs y sistemas anti-exploit personalizados." },
-                    { q: "¿Trabajas con DataStores?", a: "No, por el momento" },
-                    { q: "¿Ofreces documentación del código?", a: "Todos mis scripts incluyen comentarios detallados y documentación técnica para facilitar el mantenimiento." }
-                ]
-            },
-            en: {
-                title: "SANTANA | LEAD SCRIPTER",
-                desc: "Expert in Luau programming, complex systems, and backend architecture for Roblox.",
-                badges: ["Luau", "Backend", "Anti-Cheat"],
-                stats: [
-                    { number: "12", label: "Projects" },
-                    { number: "1+", label: "Year Exp" },
-                    { number: "99%", label: "Uptime" },
-                    { number: "10+", label: "Frameworks" }
-                ],
-                skills: [
-                    {
-                        category: "Programming",
-                        items: [
-                            { name: "Luau/Lua", level: 98 },
-                            { name: "HTML/CSS", level: 60 },
-                            { name: "Algorithm Design", level: 85 },
-                            { name: "Code Optimization", level: 80 }
-                        ]
-                    },
-                    {
-                        category: "Backend & Systems",
-                        items: [
-                            { name: "Modules", level: 90 },
-                            { name: "Anti-Exploit", level: 75 },
-                            { name: "Server Architecture", level: 82 },
-                            { name: "Debugging", level: 88 }
-                        ]
-                    }
-                ],
-                tools: [
-                    { name: "VS Code", desc: "Rojo & Copilot", img: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M23.1,13.6l-20.7,16L2.3,71.2l20.8,15.2l48.6-43.2L23.1,13.6z M19.4,75.9L9.1,68V32.8l10.3-7.9V75.9z"/><path fill="#ffffff" d="M74.8,11.2l-26.6,22L90.7,68l7-5.4V38.2L74.8,11.2z"/></svg>` },
-                    { name: "GitHub", desc: "Version Control", img: `<svg viewBox="0 0 98 96" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-rule="evenodd" clip-rule="evenodd" d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059 3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59 2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015 4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378 3.074-6.6-10.839-1.141-22.243-5.378-22.243-24.283 0-5.378 1.94-9.778 5.014-13.2-.485-1.222-2.184-6.275.486-13.038 0 0 4.125-1.304 13.426 5.052a46.97 46.97 0 0 1 12.214-1.63c4.125 0 8.33.571 12.213 1.63 9.302-6.356 13.427-5.052 13.427-5.052 2.67 6.763.97 11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548 3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52 33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z"/></svg>` },
                     { name: "Roblox Studio", desc: "Testing & Deploy", img: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="22" y="22" width="56" height="56" rx="8" transform="rotate(-15 50 50)" fill="#00A2FF"/><rect x="38" y="38" width="24" height="24" rx="3" transform="rotate(-15 50 50)" fill="#0e0e0e"/></svg>` }
                 ],
                 projects: [],
